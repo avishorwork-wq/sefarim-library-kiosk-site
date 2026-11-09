@@ -36,7 +36,7 @@ async function getExtractor(){
   extractor=await window.loadPinnedSearchModel();
   return extractor;
 }
-async function rpc(fn,...args){
+async function rpc(fn,...args){if(window.KioskCalendarLock?.locked)throw new Error('Closed for Shabbos / Yom Tov. Your changes have not been sent.');
   if(fn==='getKioskData'){const u=(CFGA.dataEndpoint||'')+'?data='+encodeURIComponent(args[0])+(args[1]?'&v='+encodeURIComponent(args[1]):'');const r=await fetch(u);return r.json()}
   const body=fn==='adminPublish'?{payload:args[0]}:(fn==='commitSnapshot'||fn==='adminSetQuantity')?{req:args[0]}:{};
   const res=await AdminAuth.call(fn,body);
