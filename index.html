@@ -715,7 +715,7 @@ const INV=new Map(),VLEN=new Map(),SKEL=new Map(),SLEN=new Map();
 let VOCAB=new Set();
 // Reversible kiosk-only exclusions. Keep BOOKS/vector offsets unchanged.
 const KIOSK_EXCLUDED_ROWS=new Set([418,420,422,428,429]);
-function kioskVisible(b){return b.hidden!==true&&!((b.library||'ENGLISH (301)')==='ENGLISH (301)'&&KIOSK_EXCLUDED_ROWS.has(Number(b.row)))}
+function kioskVisible(b){return b.hidden!==true&&!(b.hidden!==false&&(b.library||'ENGLISH (301)')==='ENGLISH (301)'&&KIOSK_EXCLUDED_ROWS.has(Number(b.row)))}
 function buildIndexes(){
   INV.clear();VLEN.clear();SKEL.clear();SLEN.clear();
   DOC_WORDS=BOOKS.map(b=>!kioskVisible(b)?new Set():tokens(['title','author','summary','tags'].map(k=>String(b[k]??'')).join('. ')+'. '+(Array.isArray(b.aliases)?b.aliases.join('. '):'')));
