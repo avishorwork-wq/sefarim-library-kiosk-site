@@ -686,7 +686,7 @@ const KIOSK_EXCLUDED_ROWS=new Set([418,420,422,428,429]);
 function kioskVisible(b){return b.hidden!==true&&!((b.library||'ENGLISH (301)')==='ENGLISH (301)'&&KIOSK_EXCLUDED_ROWS.has(Number(b.row)))}
 function buildIndexes(){
   INV.clear();VLEN.clear();SKEL.clear();SLEN.clear();
-  DOC_WORDS=BOOKS.map(b=>!kioskVisible(b)?new Set():tokens(['title','author','summary','tags'].map(k=>String(b[k]??'')).join('. ')));
+  DOC_WORDS=BOOKS.map(b=>!kioskVisible(b)?new Set():tokens(['title','author','summary','tags'].map(k=>String(b[k]??'')).join('. ')+'. '+(Array.isArray(b.aliases)?b.aliases.join('. '):'')));
   DOC_WORDS.forEach((ws,i)=>{for(const w of ws){if(!INV.has(w))INV.set(w,[]);INV.get(w).push(i)}});
   VOCAB=new Set(INV.keys());
   for(const w of VOCAB){
@@ -788,7 +788,8 @@ async function searchAsync(query,topic='',location='',limit=20,library=''){
     if(location&&String(b.location)!==location)continue;
     const title=norm(b.title),author=norm(b.author||'');
     const overlap=Math.min((acc.get(i)||0)/denom,1.0);
-    const boost=(nq&&(title.includes(nq)||author.includes(nq)))||(nqAlt&&(title.includes(nqAlt)||author.includes(nqAlt)))?0.35:0;
+    const aliasHit=Array.isArray(b.aliases)&&b.aliases.some(a=>norm(a).trim()===nq);
+    const boost=aliasHit||(nq&&(title.includes(nq)||author.includes(nq)))||(nqAlt&&(title.includes(nqAlt)||author.includes(nqAlt)))?0.35:0;
     if(semantic[i]<0.32&&overlap<0.5&&!boost)continue;
     const hasD=String(b.summary||'').trim()?1:0;const score=(1-LEXW)*semantic[i]*(hasD?1:(LEXW<0.2?0.62:NODESC_W))+LEXW*overlap*(hasD?1:0.6)+boost;
     const matched=[...DOC_WORDS[i]].filter(t=>terms.has(t)).sort();
@@ -848,6 +849,7 @@ function autocomplete(q,limit=8){
     if(tn.startsWith(qn)){starts.push(t);seen.add(tn)}
     else if(tn.includes(qn)){contains.push(t);seen.add(tn)}
   }
+  for(const b of BOOKS.filter(b=>kioskVisible(b)&&(!selectedLibrary||(b.library||'ENGLISH (301)')===selectedLibrary))){if(Array.isArray(b.aliases)&&b.aliases.some(a=>norm(a).trim().startsWith(qn))){const t=String(b.title||'').trim(),tn=norm(t).trim();if(t&&!seen.has(tn)){starts.push(t);seen.add(tn)}}}
   starts.sort((a,b)=>a.length-b.length);contains.sort((a,b)=>a.length-b.length);
   for(const t of [...starts,...contains]){if(out.length>=limit)break;out.push(t)}
   if(out.length<limit){
@@ -912,7 +914,7 @@ function validData(d,v){
     if(d.vecs.length!==d.catalog.length*dd)return false;
     for(let i=0;i<d.vecs.length;i++)if(!Number.isFinite(d.vecs[i]))return false;
     const REQ=['title','author','topic','subtopic','location','quantity','summary','tags','sources','researched','provenance','metadata','row'];
-    for(const b of d.catalog){for(const k of REQ)if(!(k in b))return false;if(!Array.isArray(b.sources))return false}
+    for(const b of d.catalog){for(const k of REQ)if(!(k in b))return false;if(!Array.isArray(b.sources))return false;if(b.aliases!==undefined&&(!Array.isArray(b.aliases)||!b.aliases.every(a=>typeof a==='string')))return false}
     return true;
   }catch(e){return false}
 }
