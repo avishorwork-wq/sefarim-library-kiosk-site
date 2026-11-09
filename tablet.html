@@ -1,0 +1,17 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Tablet preview</title>
+<style>html,body{margin:0;height:100%;background:#1b1b22;color:#ddd;font:14px system-ui,sans-serif;overflow:hidden}
+#bar{display:flex;gap:8px;align-items:center;justify-content:center;padding:8px;flex-wrap:wrap}
+button{font:inherit;padding:8px 14px;border-radius:8px;border:1px solid #666;background:#2c2c36;color:#fff}button.on{background:#1a73a8}
+#note{font-size:12px;color:#aaa;text-align:center;padding:0 8px}
+#box{position:relative;margin:6px auto;overflow:hidden;border:2px solid #555;border-radius:10px}
+iframe{position:absolute;left:0;top:0;border:0;background:#fff;transform-origin:0 0}</style></head><body>
+<div id="bar"><button id="pl" class="on">Landscape</button><button id="pp">Portrait</button><span id="dim"></span></div>
+<div id="note">Representative tablet-size preview (about 960x600 CSS px, scaled to fit this screen). Not the real device: the size is approximate and speed will differ.</div>
+<div id="box"><iframe id="f" src="index.html"></iframe></div>
+<script>var W=960,H=600;function fit(){var f=document.getElementById('f'),b=document.getElementById('box');
+var top=b.getBoundingClientRect().top;var s=Math.min((innerWidth-16)/W,(innerHeight-top-16)/H);
+f.style.width=W+'px';f.style.height=H+'px';f.style.transform='scale('+s+')';b.style.width=W*s+'px';b.style.height=H*s+'px';
+document.getElementById('dim').textContent=W+'x'+H+' at '+Math.round(s*100)+'%'}
+function set(w,h){W=w;H=h;document.getElementById('pl').className=w>h?'on':'';document.getElementById('pp').className=w>h?'':'on';fit()}
+document.getElementById('pl').onclick=function(){set(960,600)};document.getElementById('pp').onclick=function(){set(600,960)};
+addEventListener('resize',fit);fit()</script></body></html>
