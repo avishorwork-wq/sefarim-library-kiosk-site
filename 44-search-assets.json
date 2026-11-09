@@ -1,111 +1,111 @@
 {
-  "model": {
-    "name": "Xenova/all-MiniLM-L6-v2",
-    "revision": "751bff37182d3f1213fa05d7196b954e230abad9",
-    "parts": [
-      "24-model-00.bin",
-      "25-model-01.bin",
-      "26-model-02.bin",
-      "27-model-03.bin",
-      "28-model-04.bin",
-      "29-model-05.bin"
-    ],
-    "sha256": "afdb6f1a0e45b715d0bb9b11772f032c399babd23bfc31fed1c170afc848bdb1"
-  },
-  "wasm": {
-    "parts": [
-      "30-wasm-00.bin",
-      "31-wasm-01.bin",
-      "32-wasm-02.bin",
-      "33-wasm-03.bin",
-      "34-wasm-04.bin",
-      "35-wasm-05.bin"
-    ],
-    "sha256": "c46655e8a94afc45338d4cb2b840475f88e5012d524509916e505079c00bfa39"
-  },
-  "runtime": "@huggingface/transformers@3.7.6",
-  "onnxruntime": "1.22.0-dev.20250409-89f8206ba4",
-  "files": {
-    "24-model-00.bin": {
-      "sha256": "b591c472557589f71fc8111626243129cd667f46986546b42d328987f9cd9ea6",
-      "bytes": 4194304
+    "model": {
+        "name": "Xenova/all-MiniLM-L6-v2",
+        "revision": "751bff37182d3f1213fa05d7196b954e230abad9",
+        "parts": [
+            "24-model-00.bin",
+            "25-model-01.bin",
+            "26-model-02.bin",
+            "27-model-03.bin",
+            "28-model-04.bin",
+            "29-model-05.bin"
+        ],
+        "sha256": "afdb6f1a0e45b715d0bb9b11772f032c399babd23bfc31fed1c170afc848bdb1"
     },
-    "25-model-01.bin": {
-      "sha256": "a6856d82f6843a966cf4240633d8822f9dffbe1fb8aa98f48c4fb8c2e3fd54c6",
-      "bytes": 4194304
+    "wasm": {
+        "parts": [
+            "30-wasm-00.bin",
+            "31-wasm-01.bin",
+            "32-wasm-02.bin",
+            "33-wasm-03.bin",
+            "34-wasm-04.bin",
+            "35-wasm-05.bin"
+        ],
+        "sha256": "c46655e8a94afc45338d4cb2b840475f88e5012d524509916e505079c00bfa39"
     },
-    "26-model-02.bin": {
-      "sha256": "464f82d61a403ebe64cb759c15310fdbb9c022c61036dd883c823551e4fd4f7e",
-      "bytes": 4194304
+    "runtime": "@huggingface/transformers@3.7.6",
+    "onnxruntime": "1.22.0-dev.20250409-89f8206ba4",
+    "files": {
+        "24-model-00.bin": {
+            "sha256": "b591c472557589f71fc8111626243129cd667f46986546b42d328987f9cd9ea6",
+            "bytes": 4194304
+        },
+        "25-model-01.bin": {
+            "sha256": "a6856d82f6843a966cf4240633d8822f9dffbe1fb8aa98f48c4fb8c2e3fd54c6",
+            "bytes": 4194304
+        },
+        "26-model-02.bin": {
+            "sha256": "464f82d61a403ebe64cb759c15310fdbb9c022c61036dd883c823551e4fd4f7e",
+            "bytes": 4194304
+        },
+        "27-model-03.bin": {
+            "sha256": "86b785657fd671f48911ee4ec6316cd6ef0b8b05100c25c64f4cb1ee096a550d",
+            "bytes": 4194304
+        },
+        "28-model-04.bin": {
+            "sha256": "9ea4559599350368cd1b4ab156885803e45c5b8e4ddf772362d0d85bf4fde159",
+            "bytes": 4194304
+        },
+        "29-model-05.bin": {
+            "sha256": "a75c03f0fceb4ad540d1fa789b1b5742bb3e4cd41d5b07156f135d77f54a9040",
+            "bytes": 2000850
+        },
+        "30-wasm-00.bin": {
+            "sha256": "fccf1c1d74917bc26d5fd09c1580cedb36912b1c1e90d9531d58364eff0a7773",
+            "bytes": 4194304
+        },
+        "31-wasm-01.bin": {
+            "sha256": "c504b85f8e87d62ea31b7837c6ea94ff5c03ab9f03a313b4b4c31f07c070a1f8",
+            "bytes": 4194304
+        },
+        "32-wasm-02.bin": {
+            "sha256": "ebc19dfad6bdaf2f7bb2e57e1dc0ca6ceb1e28bc000136e4d75f4fff2a434535",
+            "bytes": 4194304
+        },
+        "33-wasm-03.bin": {
+            "sha256": "02e01613d189b2a3af3a57b88eb93c7d8b7386dcbf0ecc903d8e4653a6686603",
+            "bytes": 4194304
+        },
+        "34-wasm-04.bin": {
+            "sha256": "8ee3e014d0f92e56aaa9e312b3c69914276d85a054266815a792180885f58db3",
+            "bytes": 4194304
+        },
+        "35-wasm-05.bin": {
+            "sha256": "33b3ad378032775739cc23d0273275122e3e9e68791dc5df863e7f18cfd9a15c",
+            "bytes": 624499
+        },
+        "36-transformers.min.js": {
+            "sha256": "13746ae88695b62e431fc5ebe3beb10a080d2081406047670639ce8c10a9ba25",
+            "bytes": 876754
+        },
+        "37-ort-wasm-simd-threaded.jsep.mjs": {
+            "sha256": "08fb86ec433c78bfb032c5d84a68b8e8e5a8d81268fa39e24314179a5767a5b9",
+            "bytes": 44484
+        },
+        "38-config.json": {
+            "sha256": "7135149f7cffa1a573466c6e4d8423ed73b62fd2332c575bf738a0d033f70df7",
+            "bytes": 650
+        },
+        "39-tokenizer.json": {
+            "sha256": "da0e79933b9ed51798a3ae27893d3c5fa4a201126cef75586296df9b4d2c62a0",
+            "bytes": 711661
+        },
+        "40-tokenizer_config.json": {
+            "sha256": "9261e7d79b44c8195c1cada2b453e55b00aeb81e907a6664974b4d7776172ab3",
+            "bytes": 366
+        },
+        "41-TRANSFORMERS-LICENSE.txt": {
+            "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+            "bytes": 11358
+        },
+        "42-ONNXRUNTIME-LICENSE.txt": {
+            "sha256": "2f07c72751aed99790b8a4869cf2311df85a860b22ded05fa22803587a48922c",
+            "bytes": 1073
+        },
+        "43-MODEL-LICENSE.txt": {
+            "sha256": "624b030fd62b8b989dd502d5bb6322cbc0dbb524ab9c9708f32efe33d7275735",
+            "bytes": 11338
+        }
     },
-    "27-model-03.bin": {
-      "sha256": "86b785657fd671f48911ee4ec6316cd6ef0b8b05100c25c64f4cb1ee096a550d",
-      "bytes": 4194304
-    },
-    "28-model-04.bin": {
-      "sha256": "9ea4559599350368cd1b4ab156885803e45c5b8e4ddf772362d0d85bf4fde159",
-      "bytes": 4194304
-    },
-    "29-model-05.bin": {
-      "sha256": "a75c03f0fceb4ad540d1fa789b1b5742bb3e4cd41d5b07156f135d77f54a9040",
-      "bytes": 2000850
-    },
-    "30-wasm-00.bin": {
-      "sha256": "fccf1c1d74917bc26d5fd09c1580cedb36912b1c1e90d9531d58364eff0a7773",
-      "bytes": 4194304
-    },
-    "31-wasm-01.bin": {
-      "sha256": "c504b85f8e87d62ea31b7837c6ea94ff5c03ab9f03a313b4b4c31f07c070a1f8",
-      "bytes": 4194304
-    },
-    "32-wasm-02.bin": {
-      "sha256": "ebc19dfad6bdaf2f7bb2e57e1dc0ca6ceb1e28bc000136e4d75f4fff2a434535",
-      "bytes": 4194304
-    },
-    "33-wasm-03.bin": {
-      "sha256": "02e01613d189b2a3af3a57b88eb93c7d8b7386dcbf0ecc903d8e4653a6686603",
-      "bytes": 4194304
-    },
-    "34-wasm-04.bin": {
-      "sha256": "8ee3e014d0f92e56aaa9e312b3c69914276d85a054266815a792180885f58db3",
-      "bytes": 4194304
-    },
-    "35-wasm-05.bin": {
-      "sha256": "33b3ad378032775739cc23d0273275122e3e9e68791dc5df863e7f18cfd9a15c",
-      "bytes": 624499
-    },
-    "36-transformers.min.js": {
-      "sha256": "13746ae88695b62e431fc5ebe3beb10a080d2081406047670639ce8c10a9ba25",
-      "bytes": 876754
-    },
-    "37-ort-wasm-simd-threaded.jsep.mjs": {
-      "sha256": "08fb86ec433c78bfb032c5d84a68b8e8e5a8d81268fa39e24314179a5767a5b9",
-      "bytes": 44484
-    },
-    "38-config.json": {
-      "sha256": "7135149f7cffa1a573466c6e4d8423ed73b62fd2332c575bf738a0d033f70df7",
-      "bytes": 650
-    },
-    "39-tokenizer.json": {
-      "sha256": "da0e79933b9ed51798a3ae27893d3c5fa4a201126cef75586296df9b4d2c62a0",
-      "bytes": 711661
-    },
-    "40-tokenizer_config.json": {
-      "sha256": "9261e7d79b44c8195c1cada2b453e55b00aeb81e907a6664974b4d7776172ab3",
-      "bytes": 366
-    },
-    "41-TRANSFORMERS-LICENSE.txt": {
-      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
-      "bytes": 11358
-    },
-    "42-ONNXRUNTIME-LICENSE.txt": {
-      "sha256": "2f07c72751aed99790b8a4869cf2311df85a860b22ded05fa22803587a48922c",
-      "bytes": 1073
-    },
-    "43-MODEL-LICENSE.txt": {
-      "sha256": "624b030fd62b8b989dd502d5bb6322cbc0dbb524ab9c9708f32efe33d7275735",
-      "bytes": 11338
-    }
-  },
-  "note": "Binary parts concatenate in the listed order to the exact original model and WASM bytes. Model hash checked against working kiosk browser cache. Parts avoid upload transport limits."
+    "note": "Binary parts concatenate in the listed order to the exact original model and WASM bytes. Model hash checked against working kiosk browser cache. Parts avoid upload transport limits."
 }
