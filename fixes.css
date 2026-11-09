@@ -1,0 +1,7 @@
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+html,body{max-width:100%;overflow-x:hidden}
+article.glass{grid-template-columns:104px minmax(0,1fr)}
+article.glass>*{min-width:0}
+article h2,article .author,article .description,article dd{overflow-wrap:anywhere}
+#query:placeholder-shown{direction:ltr;text-align:left;text-overflow:ellipsis}
+@media (max-width:700px){article.glass{grid-template-columns:84px minmax(0,1fr)}}
