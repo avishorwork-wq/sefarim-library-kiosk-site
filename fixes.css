@@ -44,3 +44,93 @@ body.typing .library-banner{font-size:12px;margin:0 0 2px}
 html[dir=rtl] #ui-language{float:left}
 html[dir=rtl] .shelf dd{margin-inline-end:16px;margin-inline-start:0}
 html[dir=rtl] .query-row{direction:rtl}
+/* v32: shared English/Hebrew layout, deliberate controls and quiet motion. */
+body{background:#edf4f8;color:#173247}
+#glass-bg{opacity:.16}
+.glass{background:rgba(250,253,255,.96);border:1px solid #d4e3ed;box-shadow:0 8px 28px #1431490b,inset 0 1px 0 #fff}
+.glass::before{display:none}
+.mast-inner{grid-template-columns:auto minmax(0,1fr);gap:24px}
+.mast-logo{height:80px;max-width:200px;object-fit:contain}
+.mast-text{position:relative;padding-inline-end:150px}
+#ui-language{float:none;position:absolute;inset-inline-end:0;top:0;min-height:42px;padding:8px 14px;background:#132332;border:1px solid #5185a0;border-radius:12px;font-size:14px;color:#d4f1ff;white-space:nowrap}
+.library-banner{font-size:13px;letter-spacing:.08em;margin-bottom:8px}
+.masthead h1{font-size:clamp(28px,3.7vw,44px);line-height:1.18;letter-spacing:0;text-shadow:none;margin:4px 0 10px}
+.masthead .intro{max-width:600px;font-size:16px;line-height:1.5}
+.library-picker{display:grid;grid-template-columns:auto minmax(180px,330px);justify-content:start;align-items:center;gap:12px;margin:0 0 12px}
+select,.library-picker select{appearance:none;-webkit-appearance:none;background:#f6fbff;border:1px solid #bad0df;border-radius:12px;padding:11px 38px 11px 14px;color:#173247;font:inherit;font-size:16px;line-height:1.25;min-height:46px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24'%3E%3Cpath fill='none' stroke='%23395f78' stroke-width='2' d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;box-shadow:0 2px 3px #17324705;transition:border-color .2s,background-color .2s,box-shadow .2s}
+select:focus-visible{outline:3px solid #78c9f377;outline-offset:2px;border-color:#348cb9}
+html[dir=rtl] select{padding:11px 14px 11px 38px;background-position:left 14px center}
+.query-row{flex-wrap:nowrap;align-items:stretch;gap:12px}
+.query-row input{min-width:0;width:100%;border-radius:14px;font-size:19px;line-height:1.4;padding:14px 18px;background:#fff;box-shadow:none}
+.query-row button{border-radius:14px;box-shadow:0 4px 12px #1581b522;padding:12px 24px;white-space:nowrap}
+button{font-weight:600}
+button:active{transform:scale(.985)}
+#suggest{background:#fff;border-color:#d4e3ed;border-radius:14px}
+#suggest button{border-radius:10px;background:transparent;box-shadow:none;font-size:18px}
+#suggest button:hover{background:#eaf6fd}
+#results article{transition:box-shadow .22s ease,border-color .22s ease;animation:result-in .3s ease both}
+#results article:hover{transform:none;box-shadow:0 10px 30px #14314912;border-color:#a9c9dd}
+article .description{font-size:17px;line-height:1.65;color:#294357}
+article .author{line-height:1.5}
+html[dir=rtl] article h2,html[dir=rtl] .author,html[dir=rtl] .description{text-align:start}
+.book-heading .library-badge{font-family:Arial,sans-serif;letter-spacing:0;font-size:12px;padding:5px 9px}
+.book-open{background:#e0f2fe;border:1px solid #a0d0eb;color:#155376;box-shadow:none;border-radius:11px;font-size:14px}
+#book-detail{background:#f8fcff;border-radius:22px}
+.detail-toolbar{background:#f8fcfff5}
+.detail-close{border-radius:12px;box-shadow:none}
+#language-start[open]{animation:result-in .3s ease both}
+#kbd{background:#f1f7fb;border:1px solid #cfdfeb;box-shadow:0 -6px 32px #17324714;border-radius:20px}
+#kbd button.key{background:#fff;border-color:#d4e3ed;backdrop-filter:none;-webkit-backdrop-filter:none;box-shadow:0 2px 0 #c8d7e2}
+body.typing .mast-text{padding-inline-end:145px}
+body.typing .masthead h1{font-size:21px!important;margin:0;line-height:1.3}
+body.typing #ui-language{min-height:36px;padding:6px 10px;font-size:13px}
+@keyframes result-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:700px){
+ main{padding:18px 12px 40px;max-width:100%}
+ .masthead{margin:-18px -12px 16px;padding:16px;border-radius:0 0 20px 20px}
+ .mast-inner{grid-template-columns:66px minmax(0,1fr);gap:14px}
+ .mast-logo{height:auto;width:66px;max-width:66px}
+ .mast-text{padding-inline-end:0;padding-top:45px}
+ #ui-language{top:0;min-height:34px;font-size:12px;padding:6px 9px}
+ .masthead h1{font-size:27px;line-height:1.15;margin:4px 0 8px}
+ .masthead .intro{font-size:13px;line-height:1.5}
+ .library-banner{font-size:10px;margin-bottom:5px}
+ form#search{padding:16px;margin-bottom:14px}
+ .library-picker{grid-template-columns:1fr;gap:6px;margin-bottom:10px}
+ .library-picker label{font-size:12px}
+ .library-picker select{width:100%;max-width:none;font-size:15px}
+ .query-row{gap:8px;flex-wrap:wrap}
+ .query-row input{flex:1 1 100%;min-height:50px;font-size:17px;padding:11px 14px}
+ .query-row button{width:100%;min-height:46px;font-size:16px}
+ body.typing .mast-text{padding-top:0;padding-inline-end:0}
+ body.typing .mast-inner{grid-template-columns:52px minmax(0,1fr);gap:10px}
+ body.typing .mast-logo{width:52px;height:auto!important}
+ body.typing .masthead h1{font-size:18px!important;padding-inline-end:0;margin:0}
+ body.typing .library-banner{display:none!important}
+ body.typing #ui-language{position:static;float:none!important;min-height:30px;padding:4px 8px;font-size:11px;margin-bottom:5px}
+ body.typing .query-row{flex-wrap:nowrap;gap:6px}
+ body.typing .query-row input{flex:1 1 auto;min-width:0;min-height:46px;font-size:17px}
+ body.typing .query-row button{width:auto;min-height:46px;font-size:13px;padding:8px 10px}
+ body.typing .library-picker{display:none}
+ article.glass{grid-template-columns:64px minmax(0,1fr);padding:16px;gap:10px 12px}
+ article .sticker{padding:8px 4px;border-radius:12px}
+ article .sticker-num{font-size:30px}
+ article .sticker-cap{font-size:9px}
+ article .book-heading h2{font-size:22px;line-height:1.3}
+ article .book-body{grid-column:1/-1;grid-row:3}
+ article .shelf dl{grid-row:4;font-size:12px;line-height:1.5}
+ article .description{font-size:16px}
+ #book-detail article .book-body{grid-column:1/-1;grid-row:3}
+ #book-detail h2{font-size:25px}
+ .preview-banner{font-size:12px;line-height:1.5;padding:10px 12px}
+}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+/* Phone keys stay broad enough to read; tablet key targets remain large. */
+@media(max-width:700px){
+ #kbd{width:calc(100vw - 12px);padding:10px 6px 12px;bottom:6px;border-radius:16px}
+ #kbd .kbd-row{gap:3px;margin-bottom:5px}
+ #kbd button.key{min-width:0;min-height:47px;padding:8px 0;font-size:19px;border-radius:8px}
+ #kbd button.key.wide{font-size:12px}
+ #kbd .kbd-bar{margin-bottom:8px}
+ #kbd .kbd-bar button{min-height:34px;font-size:12px;padding:4px 9px}
+}
