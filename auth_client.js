@@ -6,7 +6,7 @@
   function rand() { var a = new Uint8Array(32); crypto.getRandomValues(a); return Array.from(a, function (b) { return ('0' + b.toString(16)).slice(-2); }).join(''); }
   async function sha256Hex(s) { var d = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s)); return Array.from(new Uint8Array(d), function (b) { return ('0' + b.toString(16)).slice(-2); }).join(''); }
   async function post(body) {
-    var r = await fetch(cfg.requestEndpoint, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(body) });
+    var r = await fetch(cfg.adminEndpoint||cfg.requestEndpoint, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(body) });
     return r.json();
   }
   window.AdminAuth = {
