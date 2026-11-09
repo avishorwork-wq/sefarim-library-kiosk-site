@@ -256,8 +256,8 @@ article .book-body { grid-column: 2; grid-row: 2; }
 #request p { color: var(--ink-soft); font-size: 14.5px; margin: 0 0 16px; }
 #request summary { cursor: pointer; font-family: Georgia, "Times New Roman", serif; font-size: 22px; font-weight: 600; list-style: none; }
 #request summary::-webkit-details-marker { display: none; }
-#request summary::before { content: "\25B8  "; color: var(--accent); font-size: 15px; vertical-align: 2px; }
-#request[open] summary::before { content: "\25BE  "; }
+#request summary::before { content: "▸ "; color: var(--accent); font-size: 15px; vertical-align: 2px; }
+#request[open] summary::before { content: "▾ "; }
 #request[open] summary { margin-bottom: 4px; }
 #request form { display: grid; gap: 12px; }
 #request input, #request textarea {
@@ -295,22 +295,19 @@ footer p { color: var(--ink-faint); }
 /* Engaged state (keyboard open or results shown): collapse the intro chrome
    into a compact toolbar so results stay above the docked keyboard. Warnings
    stay, but discreet. */
-body:has(#kbd.open) .eyebrow, body:has(#results article) .eyebrow,
-body:has(#kbd.open) .intro, body:has(#results article) .intro,
-body:has(#kbd.open) .examples, body:has(#results article) .examples,
-body:has(#kbd.open) .notice, body:has(#results article) .notice { display: none; }
-body:has(#kbd.open) #status, body:has(#results article) #status { margin: 4px 2px; font-size: 13px; }
+ body:has(#results article) .eyebrow, body:has(#results article) .intro, body:has(#results article) .examples, body:has(#results article) .notice { display: none; }
+ body:has(#results article) #status { margin: 4px 2px; font-size: 13px; }
 body:has(#results article) .dym { margin: .15rem 0 .1rem; }
-body:has(#kbd.open) h1, body:has(#results article) h1 { font-size: 20px; margin: 0; }
-body:has(#kbd.open) header, body:has(#results article) header { margin: 0; }
-body:has(#kbd.open) main, body:has(#results article) main { padding-top: 10px; }
-body:has(#kbd.open) .preview-banner, body:has(#results article) .preview-banner {
+ body:has(#results article) h1 { font-size: 20px; margin: 0; }
+ body:has(#results article) header { margin: 0; }
+ body:has(#results article) main { padding-top: 10px; }
+ body:has(#results article) .preview-banner {
   font-size: 12.5px; padding: 6px 12px; margin: 6px 0 8px; border-radius: 10px;
 }
-body:has(#kbd.open) form#search, body:has(#results article) form#search { padding: 12px 16px 10px; margin-bottom: 10px; }
-body:has(#kbd.open) form#search label, body:has(#results article) form#search > label { display: none; }
-body:has(#kbd.open) .filter-panel, body:has(#results article) .filter-panel { margin-top: 8px; }
-@media (max-width: 700px) {
+ body:has(#results article) form#search { padding: 12px 16px 10px; margin-bottom: 10px; }
+ body:has(#results article) form#search > label { display: none; }
+ body:has(#results article) .filter-panel { margin-top: 8px; }
+@media  (max-width: 700px) {
   main { padding: 32px 14px 48px; }
   article { grid-template-columns: 1fr; }
   article .book-heading { grid-column: 1; grid-row: auto; }
@@ -322,13 +319,13 @@ body:has(#kbd.open) .filter-panel, body:has(#results article) .filter-panel { ma
 }
 /* Tablet band (verified representative viewports 800x1280 portrait / 1280x800
    landscape, Galaxy Tab A11+ class): larger touch targets, balanced layout. */
-@media (min-width: 701px) and (max-width: 1400px) {
+@media  (min-width: 701px) and (max-width: 1400px) {
   main { max-width: min(880px, 94vw); padding: 22px 24px 80px; }
   button, select, input { min-height: 44px; }
   .sticker-num { font-size: 56px; }
   h1 { font-size: clamp(38px, 5.5vw, 52px); }
 }
-@media (min-width: 701px) and (max-width: 1400px) and (orientation: portrait) {
+@media  (min-width: 701px) and (max-width: 1400px) and (orientation: portrait) {
   article { grid-template-columns: 1fr; }
   article .book-heading { grid-column: 1; grid-row: auto; }
   article .book-body { grid-column: 1; grid-row: auto; }
@@ -336,7 +333,7 @@ body:has(#kbd.open) .filter-panel, body:has(#results article) .filter-panel { ma
   .shelf { text-align: left; display: grid; grid-template-columns: auto 1fr; gap: 2px 18px; align-items: center; }
   .sticker { margin: 0; text-align: center; }
 }
-@media (prefers-reduced-motion: reduce) {
+@media  (prefers-reduced-motion: reduce) {
   * { animation: none !important; transition: none !important; }
 }
 .hp{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
@@ -356,7 +353,7 @@ body:has(#kbd.open) .filter-panel, body:has(#results article) .filter-panel { ma
 }
 #kbd.open { display: block; }
 #kbd.hidden-forever { display: none !important; }
-body:has(#kbd.open) main { padding-bottom: min(52vh, 420px); }
+
 #kbd .kbd-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
 #kbd .kbd-bar button { padding: 6px 14px; font-size: 13.5px; box-shadow: none; }
 #kbd .kbd-row { display: flex; gap: 6px; justify-content: center; margin-bottom: 6px; }
@@ -378,13 +375,13 @@ body:has(#kbd.open) main { padding-bottom: min(52vh, 420px); }
 #kbd button.key:active { transform: translateY(1px); background: rgba(238, 247, 242, 0.9); }
 /* Short viewports (tablet landscape): keep the docked keyboard compact so a
    usable results region remains above it. */
-@media (max-height: 760px) {
+@media  (max-height: 760px) {
   #kbd { width: min(560px, 92vw); padding: 6px 10px 8px; bottom: 6px; }
   #kbd .kbd-bar { margin-bottom: 4px; }
   #kbd .kbd-bar button { padding: 4px 12px; font-size: 12.5px; }
   #kbd .kbd-row { gap: 4px; margin-bottom: 4px; }
   #kbd button.key { padding: 7px 0; font-size: 15px; border-radius: 8px; }
-  body:has(#kbd.open) main { padding-bottom: 320px; }
+  
 }
 #kbd button.key.wide { flex: 2.2; font-size: 14px; }
 #kbd button.key.space { flex: 6; }
@@ -411,27 +408,27 @@ body{padding-top:0}
 .masthead .intro{color:rgba(255,255,255,.78);margin:0;font-size:16px}
 .mast-lang{background:transparent;color:#7acdf5;border:1.5px solid #7acdf5;box-shadow:none;padding:8px 18px;font-size:17px;min-height:44px;align-self:start}
 .mast-lang:hover{background:rgba(122,205,245,.14)}
-body:has(#kbd.open) .masthead,body:has(#results article) .masthead{margin-top:-10px;margin-bottom:10px;padding:8px 20px;border-radius:0 0 18px 18px}
-body:has(#kbd.open) .mast-logo,body:has(#results article) .mast-logo{height:46px}
-body:has(#kbd.open) .masthead h1,body:has(#results article) .masthead h1{font-size:20px;color:#fff}
-@media (max-width:700px){.masthead{margin:-32px -14px 14px;padding:12px 14px}.mast-inner{grid-template-columns:1fr;gap:10px}.mast-logo{height:64px}}
-@media (min-width:701px) and (max-width:1400px){.masthead{margin:-22px -24px 18px}}
-@media (min-width:701px) and (max-width:1400px) and (orientation:portrait){.mast-logo{height:112px}}
+body:has(#results article) .masthead{margin-top:-10px;margin-bottom:10px;padding:8px 20px;border-radius:0 0 18px 18px}
+body:has(#results article) .mast-logo{height:46px}
+body:has(#results article) .masthead h1{font-size:20px;color:#fff}
+@media  (max-width:700px){.masthead{margin:-32px -14px 14px;padding:12px 14px}.mast-inner{grid-template-columns:1fr;gap:10px}.mast-logo{height:64px}}
+@media  (min-width:701px) and (max-width:1400px){.masthead{margin:-22px -24px 18px}}
+@media  (min-width:701px) and (max-width:1400px) and (orientation:portrait){.mast-logo{height:112px}}
 /* v27: bigger on-screen keyboard (tablet touch targets) */
 #kbd{width:min(1000px,98vw);padding:14px 16px 16px;bottom:8px}
 #kbd .kbd-row{gap:8px;margin-bottom:8px}
 #kbd button.key{padding:20px 0;font-size:26px;border-radius:14px}
 #kbd button.key.wide{font-size:22px}
 #kbd .kbd-bar button{padding:10px 20px;font-size:16px}
-body:has(#kbd.open) main{padding-bottom:min(56vh,460px)}
-@media (orientation:landscape) and (max-height:900px){
+
+@media  (orientation:landscape) and (max-height:900px){
  #kbd{width:min(1180px,98vw);padding:6px 12px 8px;bottom:4px}
  #kbd .kbd-row{gap:6px;margin-bottom:5px}
  #kbd button.key{padding:9px 0;font-size:22px;border-radius:12px;min-height:0}
  #kbd button.key.wide{font-size:19px}
  #kbd .kbd-bar{margin-bottom:4px}
  #kbd .kbd-bar button{padding:4px 16px;font-size:14px;min-height:34px}
- body:has(#kbd.open) main{padding-bottom:300px}}
+ }
 /* v27: Hebrew / RTL */
 html[dir=rtl] body{font-family:"Segoe UI",Arial,"Noto Sans Hebrew","Heebo",sans-serif}
 html[dir=rtl] .shelf{text-align:right}
@@ -447,22 +444,22 @@ article h2,.author,.description,.book-heading{unicode-bidi:plaintext}
 #suggest{position:static;display:flex;flex-direction:column;gap:0;margin-top:10px;padding:4px;border-radius:18px;border:1px solid rgba(26,115,168,.18);background:rgba(255,255,255,.92);overflow-y:auto;-webkit-overflow-scrolling:touch}
 #suggest button{width:100%;min-height:54px;padding:10px 18px;border-radius:12px;font-size:20px;line-height:1.25;border-bottom:1px solid rgba(26,115,168,.10);color:var(--ink);text-align:start;display:flex;align-items:center;justify-content:space-between;gap:12px}
 #suggest button:last-child{border-bottom:0}
-#suggest button::after{content:"\203A";font-size:30px;line-height:1;color:var(--accent);opacity:.7;flex:none}
-html[dir=rtl] #suggest button::after{content:"\2039"}
+#suggest button::after{content:"›";font-size:30px;line-height:1;color:var(--accent);opacity:.7;flex:none}
+html[dir=rtl] #suggest button::after{content:"‹"}
 #suggest button:active{background:rgba(122,205,245,.28)}
 #suggest li{list-style:none}
 .query-row input{font-size:21px;padding:16px 22px;min-height:58px}
 .query-row button{min-height:58px;font-size:18px}
 /* typing mode: masthead + field + suggestion list fill exactly the space above the keyboard */
-body.typing main{height:calc(100vh - var(--kbd-h,300px));height:calc(100dvh - var(--kbd-h,300px));overflow:hidden;display:flex;flex-direction:column;padding-bottom:0;padding-top:8px}
-body.typing main > :not(header):not(form#search):not(#results):not(#status){display:none}
-body.typing form#search{flex:none;display:flex;flex-direction:column;min-height:0;margin-bottom:6px}
-body.typing form#search:has(#suggest:not([hidden])){flex:1 1 auto}
-body.typing #suggest{flex:1 1 auto;min-height:0}
-body.typing .filter-panel{display:none}
-body.typing #results{flex:1 1 auto;min-height:0;overflow-y:auto}
-body.typing form#search:has(#suggest:not([hidden])) ~ #results{display:none}
-@media (orientation:landscape) and (max-height:900px){#suggest button{min-height:46px;font-size:19px;padding:6px 16px}.query-row input{padding:11px 20px;min-height:50px}.query-row button{min-height:50px}body.typing form#search{padding:10px 16px 8px}}
+
+
+
+
+
+
+
+
+@media  (orientation:landscape) and (max-height:900px){#suggest button{min-height:46px;font-size:19px;padding:6px 16px}.query-row input{padding:11px 20px;min-height:50px}.query-row button{min-height:50px}}
 /* compact result cards: sticker badge + title on top, description, meta in one row */
 article.glass{display:grid;grid-template-columns:104px 1fr;gap:8px 18px;padding:18px 22px;align-items:start}
 article .shelf{display:contents}
@@ -476,24 +473,33 @@ article .shelf dt{margin:0}
 article .shelf dd{margin:0 16px 0 0;font-size:15px}
 article .book-heading h2{font-size:clamp(21px,3.2vw,28px);margin:0 0 4px;line-height:1.2}
 article .description{font-size:16.5px;line-height:1.55}
-@media (min-width:1000px) and (orientation:landscape){main{max-width:min(1100px,94vw)}.mast-inner{max-width:1100px}}
-@media (max-width:700px){article.glass{grid-template-columns:84px 1fr;padding:14px 14px;gap:6px 12px}article .sticker-num{font-size:34px}}
+@media  (min-width:1000px) and (orientation:landscape){main{max-width:min(1100px,94vw)}.mast-inner{max-width:1100px}}
+@media  (max-width:700px){article.glass{grid-template-columns:84px 1fr;padding:14px 14px;gap:6px 12px}article .sticker-num{font-size:34px}}
 
 /* v28b: explicit pane heights set by JS (fits exactly the gap above the keyboard) */
-body.typing main{height:auto;overflow:visible;display:block;padding-bottom:0}
-body.typing form#search,body.typing form#search:has(#suggest:not([hidden])){display:block;flex:none}
-body.typing #suggest{flex:none}
-#suggest button:dir(rtl)::after{content:"\2039"}
-body.typing form#search,body.typing #suggest{transition:none!important}
-body.typing #results{overflow-y:auto}
-body.typing form#search:has(#suggest:not([hidden])) ~ #status{display:none}
+
+
+
+#suggest button:dir(rtl)::after{content:"‹"}
+
+
+
 </style><style>
  #language-start[open]{animation:none!important}
 @keyframes chooser-backdrop-in{from{opacity:0}to{opacity:1}}
 @keyframes chooser-backdrop-out{from{opacity:1}to{opacity:0}}
 #language-start[open]::backdrop{animation:chooser-backdrop-in 240ms ease-out both}
 #language-start.closing::backdrop{animation:chooser-backdrop-out 180ms ease-in both}
-@media(prefers-reduced-motion:reduce){#language-start[open]::backdrop,#language-start.closing::backdrop{animation:none}}
+@media (prefers-reduced-motion:reduce){#language-start[open]::backdrop,#language-start.closing::backdrop{animation:none}}
+</style><style>
+body:has(#kbd.open) main{padding-bottom:calc(var(--kbd-h,330px) + 24px)}
+body.typing #results{display:grid}
+body.typing #suggest{height:auto!important;overflow-y:auto}
+#suggest:empty{display:none!important}
+#suggest[hidden]{display:none!important}
+#kbd.open{animation:keyboard-in 180ms ease-out both}
+@keyframes keyboard-in{from{opacity:0;transform:translate(-50%,12px)}to{opacity:1;transform:translate(-50%,0)}}
+@media(prefers-reduced-motion:reduce){#kbd.open{animation:none}}
 </style></head><script>/* Backend endpoints. Defaults inside index.html point at the existing sheet-backed service. Override here to change the backend without editing index.html. */
 window.KIOSK_CONFIG={
   dataEndpoint: 'https://script.google.com/macros/s/AKfycbysgzWStmxSyhZgejGV6JobiUc6g3v_98RUviisAczv8yf1MbDA3hRWNrXlCcyfeCNz/exec',
@@ -1047,14 +1053,13 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshIfC
 window.__kiosk = { search: searchAsync, autocomplete, version: () => (memCache || {}).version, refresh: refreshIfChanged };
 
 </script>
-<script>for(const f of document.querySelectorAll('input[inputmode=none],textarea[inputmode=none]'))f.addEventListener('focus',()=>setTimeout(()=>f.scrollIntoView({block:'center',behavior:'smooth'}),120))</script><script>(function(){const k=document.getElementById('kbd');if(!k)return;const set=()=>document.documentElement.style.setProperty('--kbd-h',Math.ceil(k.getBoundingClientRect().height+k.getBoundingClientRect().bottom*0+Math.max(0,innerHeight-k.getBoundingClientRect().bottom)+6)+'px');const typ=()=>document.body.classList.toggle('typing',k.classList.contains('open')&&!!document.activeElement&&document.activeElement.id==='query');['focusin','focusout','pointerdown','click'].forEach(e=>document.addEventListener(e,()=>setTimeout(typ,0),true));new MutationObserver(typ).observe(k,{attributes:true});new ResizeObserver(set).observe(k);new MutationObserver(set).observe(k,{attributes:true});addEventListener('resize',set);set()})()</script><script>(function(){const k=document.getElementById('kbd'),sug=document.getElementById('suggest'),res=document.getElementById('results');if(!k)return;
-function fit(){const typing=document.body.classList.contains('typing');const kt=k.getBoundingClientRect().top;
-for(const el of [sug,res]){if(!el)continue;if(!typing){el.style.maxHeight='';el.style.height='';continue}
-el.style.maxHeight='';const top=el.getBoundingClientRect().top;if(el===sug){const qr=document.querySelector('.query-row').getBoundingClientRect();window.__sugLimit=Math.min(12,Math.max(5,Math.floor((kt-qr.bottom-24)/(innerWidth>innerHeight?46:54))))}{const h=Math.max(110,Math.floor(kt-top-12));el.style.maxHeight=h+'px';if(el===sug){el.style.height=h+'px';const ex=document.documentElement.scrollHeight-innerHeight;if(ex>0){el.style.height=el.style.maxHeight=Math.max(110,h-ex)+'px'}}}}}
-const later=()=>{if(sug)for(const b of sug.querySelectorAll('button'))b.setAttribute('dir','auto');fit();setTimeout(fit,60);setTimeout(fit,400)};
-new MutationObserver(later).observe(document.body,{attributes:true,attributeFilter:['class']});
-if(sug)new MutationObserver(later).observe(sug,{childList:true,attributes:true,attributeFilter:['hidden']});
-document.getElementById('query').addEventListener('input',later);addEventListener('resize',later);window.__fit=fit})()</script><script>/* Admin panel loader: runs ONLY when the URL hash is #admin. Patrons never load any admin code. */
+<script>
+(()=>{const k=document.getElementById('kbd'),q=document.getElementById('query'),sug=document.getElementById('suggest');if(!k)return;
+function fit(){const open=k.classList.contains('open');document.body.classList.toggle('typing',open&&document.activeElement===q);const r=k.getBoundingClientRect();document.documentElement.style.setProperty('--kbd-h',Math.ceil(r.height+16)+'px');if(sug){sug.style.height='';sug.style.maxHeight=Math.max(96,Math.min(220,r.top-sug.getBoundingClientRect().top-8))+'px';window.__sugLimit=6;}}
+function reveal(f){requestAnimationFrame(()=>{fit();const r=f.getBoundingClientRect(),top=k.getBoundingClientRect().top;if(k.classList.contains('open')&&r.bottom>top-16)scrollBy({top:r.bottom-top+24,behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'auto':'smooth'});});}
+for(const f of document.querySelectorAll('input,textarea'))f.addEventListener('focus',()=>reveal(f));new MutationObserver(fit).observe(k,{attributes:true,attributeFilter:['class']});new ResizeObserver(fit).observe(k);new MutationObserver(fit).observe(sug,{childList:true,attributes:true,attributeFilter:['hidden']});addEventListener('resize',fit);window.__fit=fit;
+})();
+</script><script>/* Admin panel loader: runs ONLY when the URL hash is #admin. Patrons never load any admin code. */
 (function(){function go(){if(location.hash!=='#admin'||window.__adminLoaded)return;window.__adminLoaded=true;var c=window.KIOSK_CONFIG=window.KIOSK_CONFIG||{};c.dataEndpoint=c.dataEndpoint||'https://script.google.com/macros/s/AKfycbw-vwSy2xw8WTG7iXN9iopdrHoPCz3GoCFjetW6tdhANgN-wNWNmC2Q6tC0P-tkd20/exec';c.requestEndpoint=c.requestEndpoint||'https://script.google.com/macros/s/AKfycbw-vwSy2xw8WTG7iXN9iopdrHoPCz3GoCFjetW6tdhANgN-wNWNmC2Q6tC0P-tkd20/exec';
 function ld(src,cb){var s=document.createElement('script');s.src=src;s.onload=cb;document.head.appendChild(s)}
 function chain(){ld('auth_client.js',function(){ld('admin.js')})}
@@ -1066,14 +1071,14 @@ article.glass{grid-template-columns:104px minmax(0,1fr)}
 article.glass>*{min-width:0}
 article h2,article .author,article .description,article dd{overflow-wrap:anywhere}
 #query:placeholder-shown{direction:ltr;text-align:left;text-overflow:ellipsis}
-@media (max-width:700px){article.glass{grid-template-columns:84px minmax(0,1fr)}}
+@media  (max-width:700px){article.glass{grid-template-columns:84px minmax(0,1fr)}}
 /* v29: no layout movement while typing. The suggestion pane keeps a fixed size
    above the keyboard (JS sets its height); an empty list hides its contents,
    not the pane, and nothing else resizes or scrolls per keystroke. */
-html:has(body.typing){overflow:hidden;overscroll-behavior:none}
-body.typing #suggest,body.typing #suggest[hidden]{display:flex;flex-direction:column;overflow-y:auto;box-sizing:border-box}
-body.typing #suggest[hidden]{visibility:hidden}
-body.typing #results,body.typing #status,body.typing form#search:has(#suggest:not([hidden])) ~ #status{display:none}
+
+
+
+
 /* Detail motion changes opacity/transform only, never typing geometry. */
 .book-open{margin-top:10px;min-height:44px;font-size:15px;padding:10px 18px}
 #results article{cursor:pointer}
@@ -1089,11 +1094,11 @@ body.typing #results,body.typing #status,body.typing form#search:has(#suggest:no
 html:has(body.detail-open){overflow:hidden}
 button,a{transition:background-color .16s ease,color .16s ease,box-shadow .16s ease}
 @keyframes detail-backdrop-in{from{background:rgba(5,16,30,0)}to{background:rgba(5,16,30,.55)}}
-@media(max-width:700px){#book-detail{border-radius:18px;width:96vw;max-height:94dvh}.detail-content{padding:10px}.detail-toolbar{padding:10px 14px}}
-@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+@media (max-width:700px){#book-detail{border-radius:18px;width:96vw;max-height:94dvh}.detail-content{padding:10px}.detail-toolbar{padding:10px 14px}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 .library-banner{display:block!important;margin:0 0 4px;color:#9be0ff;font-size:15px;font-weight:750;letter-spacing:.04em}
 .library-badge{display:inline-block;margin:0 0 8px;padding:5px 10px;border:1px solid #7abbd8;border-radius:8px;background:#def3ff;color:#123e57;font-size:14px;font-weight:750;line-height:1.3}
-body.typing .library-banner{font-size:12px;margin:0 0 2px}
+
 .library-picker{display:flex;align-items:center;gap:10px;margin-bottom:10px;font-size:15px}
 .library-picker label{display:block!important;margin:0!important;white-space:nowrap}
 .library-picker select{min-height:44px;width:auto;max-width:100%;padding:8px 12px;font-size:16px}
@@ -1143,11 +1148,11 @@ html[dir=rtl] article h2,html[dir=rtl] .author,html[dir=rtl] .description{text-a
 #language-start[open]{animation:result-in .3s ease both}
 #kbd{background:#f1f7fb;border:1px solid #cfdfeb;box-shadow:0 -6px 32px #17324714;border-radius:20px}
 #kbd button.key{background:#fff;border-color:#d4e3ed;backdrop-filter:none;-webkit-backdrop-filter:none;box-shadow:0 2px 0 #c8d7e2}
-body.typing .mast-text{padding-inline-end:145px}
-body.typing .masthead h1{font-size:21px!important;margin:0;line-height:1.3}
-body.typing #ui-language{min-height:36px;padding:6px 10px;font-size:13px}
+
+
+
 @keyframes result-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-@media(max-width:700px){
+@media (max-width:700px){
  main{padding:18px 12px 40px;max-width:100%}
  .masthead{margin:-18px -12px 16px;padding:16px;border-radius:0 0 20px 20px}
  .mast-inner{grid-template-columns:66px minmax(0,1fr);gap:14px}
@@ -1164,16 +1169,16 @@ body.typing #ui-language{min-height:36px;padding:6px 10px;font-size:13px}
  .query-row{gap:8px;flex-wrap:wrap}
  .query-row input{flex:1 1 100%;min-height:50px;font-size:17px;padding:11px 14px}
  .query-row button{width:100%;min-height:46px;font-size:16px}
- body.typing .mast-text{padding-top:0;padding-inline-end:0}
- body.typing .mast-inner{grid-template-columns:52px minmax(0,1fr);gap:10px}
- body.typing .mast-logo{width:52px;height:auto!important}
- body.typing .masthead h1{font-size:18px!important;padding-inline-end:0;margin:0}
- body.typing .library-banner{display:none!important}
- body.typing #ui-language{position:static;float:none!important;min-height:30px;padding:4px 8px;font-size:11px;margin-bottom:5px}
- body.typing .query-row{flex-wrap:nowrap;gap:6px}
- body.typing .query-row input{flex:1 1 auto;min-width:0;min-height:46px;font-size:17px}
- body.typing .query-row button{width:auto;min-height:46px;font-size:13px;padding:8px 10px}
- body.typing .library-picker{display:none}
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
  article.glass{grid-template-columns:64px minmax(0,1fr);padding:16px;gap:10px 12px}
  article .sticker{padding:8px 4px;border-radius:12px}
  article .sticker-num{font-size:30px}
@@ -1186,9 +1191,9 @@ body.typing #ui-language{min-height:36px;padding:6px 10px;font-size:13px}
  #book-detail h2{font-size:25px}
  .preview-banner{font-size:12px;line-height:1.5;padding:10px 12px}
 }
-@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 /* Phone keys stay broad enough to read; tablet key targets remain large. */
-@media(max-width:700px){
+@media (max-width:700px){
  #kbd{width:calc(100vw - 12px);padding:10px 6px 12px;bottom:6px;border-radius:16px}
  #kbd .kbd-row{gap:3px;margin-bottom:5px}
  #kbd button.key{min-width:0;min-height:47px;padding:8px 0;font-size:19px;border-radius:8px}
@@ -1197,7 +1202,7 @@ body.typing #ui-language{min-height:36px;padding:6px 10px;font-size:13px}
  #kbd .kbd-bar button{min-height:34px;font-size:12px;padding:4px 9px}
 }
 /* Preserve the typing region's fixed geometry without framing empty space. */
-body.typing form#search:has(#suggest:empty){background:transparent;border-color:transparent;box-shadow:none}
+
 </style>
 <script>
 /* Book detail expansion. No catalog or backend writes. */
