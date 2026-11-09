@@ -736,6 +736,7 @@ function buildIndexes(){
     const sk=skeleton(w);
     if(sk.length>=3){if(!SKEL.has(sk))SKEL.set(sk,new Set());SKEL.get(sk).add(w)}
   }
+  buildIdentityIndex();
   for(const sk of SKEL.keys()){if(!SLEN.has(sk.length))SLEN.set(sk.length,[]);SLEN.get(sk.length).push(sk)}
 }
 
@@ -800,6 +801,61 @@ function semanticScores(qvec){
 function search(query,topic='',location='',limit=20){
   return searchAsync(query,topic,location,limit);
 }
+// Title/author-only Hebrew spelling and sound-alike evidence. No semantic model changes.
+function heIdentityNorm(s){return norm(String(s).replace(/["'״׳’`]/g,'')).trim().replace(/\s+/g,' ')}
+const HE_SOUND_GROUPS=[['טת',.38],['סשת',.46],['כקח',.46],['אע',.42],['בו',.55],['גק',.62],['חה',.58],['הא',.58]];
+function heSoundCost(a,b){if(a===b)return 0;for(const [group,cost] of HE_SOUND_GROUPS)if(group.includes(a)&&group.includes(b))return cost;return 1}
+function heSoundDistance(a,b){
+ let prev2=null,prev=Array.from({length:b.length+1},(_,i)=>i);
+ for(let i=1;i<=a.length;i++){
+  const del='וי'.includes(a[i-1])?.52:1,cur=[prev[0]+del];
+  for(let j=1;j<=b.length;j++){
+   const ins='וי'.includes(b[j-1])?.52:1;
+   cur[j]=Math.min(prev[j]+del,cur[j-1]+ins,prev[j-1]+heSoundCost(a[i-1],b[j-1]));
+   if(i>1&&j>1&&a[i-1]===b[j-2]&&a[i-2]===b[j-1]&&prev2)cur[j]=Math.min(cur[j],prev2[j-2]+.75);
+  }
+  prev2=prev;prev=cur;
+ }
+ return prev[b.length];
+}
+function heWordEvidence(a,b,anchored=false){
+ if(a===b)return 1;
+ if(Math.min(a.length,b.length)<(anchored?2:3)||Math.abs(a.length-b.length)>2)return 0;
+ // Three-letter words get only a single small phonetic change, never generic edit fuzz.
+ const d=heSoundDistance(a,b),len=Math.max(a.length,b.length);
+ const max=a.length<=3?(anchored?1.02:.48):len<6?1:len<9?1.42:1.85;
+ if(d>max)return 0;
+ return Math.max(.55,1-d/(len*.72));
+}
+const EN_SOUND_FAMILIES=[['bracha','beracha','berachah','berakha','berakhah','brocha','brachos','berachos','berakhos','brochos','brachot','berachot','berakhot'],['shabbos','shabos','shabbes','shabes','shabbat','shabbath','shabas','shabbas'],['yisrael','yisroel','yisroyl','israel'],['yosef','yoseph','yoseif'],['chaim','chayim','hayim','haim'],['yitzchak','yitzhak','yitzchok','yitzhok','itzhak'],['tefillah','tefila','tefilah','tefilloh','tefilot','tefillot','tefillos'],['twerski','twersky'],['berura','berurah','beruroh'],['halacha','halachah','halakha','halakhah','halachos','halachot','halakhot']];
+const EN_SOUND=new Map();EN_SOUND_FAMILIES.forEach((f,i)=>f.forEach(w=>EN_SOUND.set(w,i)));
+let IDENTITY_WORDS=[],IDENTITY_COMPACT=[];
+function buildIdentityIndex(){
+ IDENTITY_WORDS=BOOKS.map(b=>[...new Set(heIdentityNorm([b.title,b.author,...(b.aliases||[])].join(' ')).split(' ').filter(Boolean))]);
+ IDENTITY_COMPACT=BOOKS.map(b=>[b.title,b.author,...(b.aliases||[])].map(x=>heIdentityNorm(x).replace(/ /g,'')));
+}
+function identityEvidence(query,i){
+ const q=heIdentityNorm(query);if(!q)return 0;
+ const heb=/[א-ת]/.test(q),words=q.split(' ').filter(Boolean),doc=IDENTITY_WORDS[i]||[];
+ if(heb){
+  if(!/^[א-ת\s]+$/.test(q))return 0;
+  const compact=q.replace(/ /g,'');
+  if(compact.length>=4&&IDENTITY_COMPACT[i].some(x=>x.includes(compact)))return 1;
+  if(words.length>7)return 0;
+  // Require every significant query token, and never reuse one target token.
+  const used=new Set();let sum=0;
+  for(const w of words){
+   let best=0,bestj=-1;for(let j=0;j<doc.length;j++){if(used.has(j)||!/[א-ת]/.test(doc[j]))continue;const anchored=words.some(t=>t!==w&&t.length>=3&&doc.includes(t));const v=heWordEvidence(w,doc[j],anchored);if(v>best){best=v;bestj=j}}
+   if(best<.6)return 0;used.add(bestj);sum+=best;
+  }
+  return sum/words.length;
+ }
+ // Only an explicit transliteration family can add English phonetic evidence.
+ if(!words.some(w=>EN_SOUND.has(w)))return 0;
+ let sum=0,changed=false;for(const w of words){if(doc.includes(w)){sum++;continue}const family=EN_SOUND.get(w);if(family===undefined||!doc.some(t=>EN_SOUND.get(t)===family))return 0;sum+=.84;changed=true}
+ return changed?sum/words.length:0;
+}
+
 async function searchAsync(query,topic='',location='',limit=20,library=''){if(window.KioskCalendarLock?.locked)return {results:[],message:'Closed for Shabbos / Yom Tov'};
   query=canonicalWorkQuery(query);query=query.replace(/\b(shabbas|shabas|shabbat|shabbath|sabbath)\b/gi,'shabbos');
   if(!query.trim())return {results:[],message:'Describe a subject, person or kind of book.'};
@@ -839,7 +895,10 @@ async function searchAsync(query,topic='',location='',limit=20,library=''){if(wi
     const overlap=Math.min((acc.get(i)||0)/denom,1.0);
     const aliasHit=Array.isArray(b.aliases)&&b.aliases.some(a=>norm(a).trim()===nq);
     const phraseHit=(nq&&(title.includes(nq)||author.includes(nq)))||(nqAlt&&(title.includes(nqAlt)||author.includes(nqAlt)));
-    const boost=aliasHit?0.5:(phraseHit?0.35:0);
+    const identity=identityEvidence(query,i);
+    const identityBoost=identity?( /[א-ת]/.test(query)? .8*identity : .24*identity):0;
+    const boost=Math.max(aliasHit?0.5:(phraseHit?0.35:0),identityBoost);
+    if(/[א-ת]/.test(query)&&(b.library||'').includes('303')&&!identity)continue;
     if(semantic[i]<0.32&&overlap<0.5&&!boost)continue;
     const evidenceText=[b.title,b.summary,b.tags].join(' ');
     const electricalEvidence=/\b(electric(?:al|ity)?|appliances?|technology)\b/i.test(evidenceText);
