@@ -5,3 +5,10 @@ article.glass>*{min-width:0}
 article h2,article .author,article .description,article dd{overflow-wrap:anywhere}
 #query:placeholder-shown{direction:ltr;text-align:left;text-overflow:ellipsis}
 @media (max-width:700px){article.glass{grid-template-columns:84px minmax(0,1fr)}}
+/* v29: no layout movement while typing. The suggestion pane keeps a fixed size
+   above the keyboard (JS sets its height); an empty list hides its contents,
+   not the pane, and nothing else resizes or scrolls per keystroke. */
+html:has(body.typing){overflow:hidden;overscroll-behavior:none}
+body.typing #suggest,body.typing #suggest[hidden]{display:flex;flex-direction:column;overflow-y:auto;box-sizing:border-box}
+body.typing #suggest[hidden]{visibility:hidden}
+body.typing #results,body.typing #status,body.typing form#search:has(#suggest:not([hidden])) ~ #status{display:none}
