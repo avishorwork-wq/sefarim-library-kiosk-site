@@ -134,3 +134,5 @@ body.typing #ui-language{min-height:36px;padding:6px 10px;font-size:13px}
  #kbd .kbd-bar{margin-bottom:8px}
  #kbd .kbd-bar button{min-height:34px;font-size:12px;padding:4px 9px}
 }
+/* Preserve the typing region's fixed geometry without framing empty space. */
+body.typing form#search:has(#suggest:empty){background:transparent;border-color:transparent;box-shadow:none}
