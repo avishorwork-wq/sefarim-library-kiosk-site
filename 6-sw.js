@@ -1,5 +1,5 @@
 /* Public app shell only. Never cache API traffic, POSTs, admin or Google sign-in. */
-const SHELL='netiv-shell-20261109b',MODEL='netiv-model-20261109a';
+const SHELL='netiv-shell-20261109c',MODEL='netiv-model-20261109a';
 const APP=['./index.html','./1-idle-kiosk.html','./idle-test.html','./config.js','./fixes.css','./4-pwa.js','./5-idle-main.js','./3-manifest.webmanifest','./1-icon-192.png','./2-icon-512.png','./1-he303-v2-readonly.json'];
 const root=new URL('./',self.location.href);
 const urls=APP.map(p=>new URL(p,root).href);
