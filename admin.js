@@ -6,6 +6,7 @@ const html="<main><img class=\"logo-badge\" src=\"data:image/png;base64,iVBORw0K
 const root=document.createElement('div');root.id='kadmin';root.setAttribute('dir','ltr');
 const style=document.createElement('style');style.textContent=css;document.head.appendChild(style);
 root.innerHTML=html;document.body.appendChild(root);
+if(CFGA.hebrewCatalogUrl){const note=document.createElement('p');note.className='sub';note.textContent='Hebrew (303) is a read-only import in this admin panel. / האוסף בעברית (303) מיועד לחיפוש בלבד ולא ניתן לעריכה כאן.';root.querySelector('main').prepend(note)}
 const authst=root.querySelector('#authst');
 function showSignedOut(msg){root.querySelector('#adminbody').style.display='none';root.querySelector('#authbox').style.display='';authst.textContent=msg||'';authst.className=msg?'err':''}
 function showSignedIn(){root.querySelector('#authbox').style.display='none';root.querySelector('#adminbody').style.display=''}
