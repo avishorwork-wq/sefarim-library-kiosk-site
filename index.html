@@ -574,7 +574,8 @@ const layouts={
 en:[['q','w','e','r','t','y','u','i','o','p'],['a','s','d','f','g','h','j','k','l'],['z','x','c','v','b','n','m']],
 he:[['/','\'','ק','ר','א','ט','ו','ן','ם','פ'],['ש','ד','ג','כ','ע','י','ח','ל','ך','ף'],['ז','ס','ב','ה','נ','מ','צ','ת','ץ','.']]};
 layouts.sym=[['1','2','3','4','5','6','7','8','9','0'],['-','/',':',';','&','+','#','%','₪','"'],['.',',','?','!','\'','@','_','=']];let layer='abc',lang='en',target=null;
-const fields=()=>[...document.querySelectorAll('input[inputmode="none"],textarea[inputmode="none"]')];
+const keyboardFields=[...document.querySelectorAll('input[inputmode="none"],textarea[inputmode="none"]')];
+const fields=()=>keyboardFields;
 function insert(txt){
  if(!target)return;
  const s=target.selectionStart??target.value.length,e=target.selectionEnd??target.value.length;
@@ -623,7 +624,7 @@ document.getElementById('kbd-native').addEventListener('click',()=>{
  kbd.classList.add('hidden-forever');kbd.classList.remove('open');
  const bar=kbd.querySelector('.kbd-bar');
  if(target){target.blur();setTimeout(()=>target&&target.focus(),50);}});
-kbd.showAgain=()=>{for(const f of fields())f.inputMode='none';kbd.classList.remove('hidden-forever');};
+kbd.showAgain=()=>{for(const f of fields())f.inputMode='none';target=null;lang='en';layer='abc';render();kbd.classList.remove('hidden-forever','open');};
 for(const f of fields()){
  f.addEventListener('focus',()=>{target=f;if(!kbd.classList.contains('hidden-forever'))kbd.classList.add('open');if(f.id==='query')f.dir=lang==='he'?'rtl':'ltr'});
  f.addEventListener('click',()=>{target=f;if(!kbd.classList.contains('hidden-forever'))kbd.classList.add('open')});}
@@ -1143,7 +1144,17 @@ window.KioskUpdates={publish(){updateChannel?.postMessage('catalog-updated');ret
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshIfChanged()});
 
 // Exposed for regression testing and future integrations (read-only).
-window.__kiosk = { resetSession:()=>{request++;clearTimeout(window.__sugTimer||0);hideSuggest();const b=$('#search button');b.disabled=false;b.textContent='Find books';}, search: searchAsync, autocomplete, version: () => (memCache || {}).version, refresh: refreshIfChanged };
+window.__kiosk = { resetSession:()=>{
+ request++;clearTimeout(window.__sugTimer||0);hideSuggest();
+ document.activeElement?.blur();document.querySelector('#book-detail')?.close();
+ document.body.classList.remove('detail-open','typing');
+ HTMLFormElement.prototype.reset.call($('#search'));$('#query').value='';$('#results').replaceChildren();
+ const rf=$('#request-form');if(rf)HTMLFormElement.prototype.reset.call(rf);const rd=$('#request');if(rd)rd.open=false;
+ document.querySelectorAll('.dym').forEach(x=>x.remove());
+ const k=document.getElementById('kbd');k?.showAgain?.();
+ const b=$('#search button');b.disabled=false;b.textContent='Find books';$('#status').textContent='Ready. Search by meaning, title or author.';
+ window.dispatchEvent(new Event('kiosk-session-reset'));scrollTo(0,0);
+ }, search: searchAsync, autocomplete, version: () => (memCache || {}).version, refresh: refreshIfChanged };
 
 </script>
 <script>
@@ -1341,7 +1352,7 @@ html[dir=rtl] article h2,html[dir=rtl] .author,html[dir=rtl] .description{text-a
  function convert(s){if(pairs[s])return pairs[s];if(s.startsWith('Library: '))return 'ספרייה: '+s.slice(9);if(s.startsWith('Matching words: '))return 'מילים תואמות: '+s.slice(16);if(s.startsWith('Book source '))return 'מקור לספר '+s.slice(12);if(s.startsWith('Did you mean '))return 'האם התכוונתם ל־'+s.slice(13);if(/^\d+ suggestions? for /.test(s))return s.replace(/^(\d+) suggestions? for /,'$1 תוצאות עבור ').replace('Suggestions are ranked matches, not guarantees of coverage.','התוצאות מדורגות לפי התאמה, ואין בהן הבטחה שהנושא מכוסה.');return s;}
  function pass(){pending=false;const w=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);let n;while(n=w.nextNode()){if(n.parentElement.closest('script,style,#language-start,#ui-language,#authbox,#adminbody'))continue;const raw=n.data,trim=raw.trim();if(!trim)continue;let old=state.get(n);if(!old||raw!==old.last)old={en:raw,last:raw};const target=lang==='he'?old.en.replace(old.en.trim(),convert(old.en.trim())):old.en;if(target!==raw)n.data=target;old.last=target;state.set(n,old)}for(const el of document.querySelectorAll('[placeholder]')){const key=el.dataset.originalPlaceholder||(el.dataset.originalPlaceholder=el.placeholder);el.placeholder=lang==='he'?(pairs[key]||key):key}}
  function set(v){lang=v;document.documentElement.lang=v;document.documentElement.dir=v==='he'?'rtl':'ltr';document.body.dataset.uiLang=v;pass();window.dispatchEvent(new CustomEvent('kiosk-language',{detail:v}))}
- const start=document.createElement('dialog');start.id='language-start';start.setAttribute('aria-label','Choose interface language / בחירת שפה');const logo=document.querySelector('.mast-logo');const img=logo?logo.cloneNode():null;if(img){img.removeAttribute('class');img.alt='Netiv Aryeh';start.append(img)}const h=document.createElement('h2');h.textContent='Welcome / ברוכים הבאים';start.append(h);const p=document.createElement('p');p.textContent='Choose your language / בחרו שפה';start.append(p);const actions=document.createElement('div');actions.className='language-actions';for(const [v,t] of [['en','English'],['he','עברית']]){const b=document.createElement('button');b.type='button';b.textContent=t;b.onclick=()=>choose(v);actions.append(b)}start.append(actions);start.addEventListener('cancel',e=>e.preventDefault());document.body.append(start);document.getElementById('ui-language').onclick=openLanguage;
+ const start=document.createElement('dialog');start.id='language-start';start.setAttribute('aria-label','Choose interface language / בחירת שפה');const logo=document.querySelector('.mast-logo');const img=logo?logo.cloneNode():null;if(img){img.removeAttribute('class');img.alt='Netiv Aryeh';start.append(img)}const h=document.createElement('h2');h.textContent='Welcome / ברוכים הבאים';start.append(h);const p=document.createElement('p');p.textContent='Choose your language / בחרו שפה';start.append(p);const actions=document.createElement('div');actions.className='language-actions';for(const [v,t] of [['en','English'],['he','עברית']]){const b=document.createElement('button');b.type='button';b.textContent=t;b.onclick=()=>choose(v);actions.append(b)}start.append(actions);start.addEventListener('cancel',e=>e.preventDefault());document.body.append(start);document.getElementById('ui-language').onclick=()=>{window.__kiosk?.resetSession?.();openLanguage();};
  const reduced=()=>matchMedia('(prefers-reduced-motion:reduce)').matches;
  function openLanguage(){if(start.open)return;start.classList.remove('closing');start.showModal();if(!reduced())start.animate([{opacity:0,transform:'translateY(12px) scale(.97)'},{opacity:1,transform:'translateY(0) scale(1)'}],{duration:240,easing:'cubic-bezier(.2,.7,.2,1)'});}
  async function choose(v){for(const b of actions.children)b.disabled=true;start.classList.add('closing');if(!reduced())await start.animate([{opacity:1,transform:'translateY(0) scale(1)'},{opacity:0,transform:'translateY(8px) scale(.98)'}],{duration:180,easing:'ease-in',fill:'forwards'}).finished.catch(()=>{});set(v);start.close();start.classList.remove('closing');for(const a of start.getAnimations())a.cancel();for(const b of actions.children)b.disabled=false;}
