@@ -146,7 +146,8 @@ card.innerHTML='<h2 style="margin-top:0">Change copies of a book already in the 
 '<div id="qedit" style="display:none"><div id="qpick" dir="auto" style="font-weight:600;margin:8px 0"></div>'+
 '<label for="qnew" style="display:block;font-size:15px">New total copies (whole number, 1 or more)</label>'+
 '<input id="qnew" type="number" inputmode="numeric" min="1" step="1" style="width:100%;box-sizing:border-box;font-size:20px;padding:12px">'+
-'<button type="button" id="qsave" style="margin-top:10px">Save copies</button></div>'+
+'<button type="button" id="qsave" style="margin-top:10px">Save copies</button>'+
+'<button type="button" id="qback" class="ghost" style="margin-top:8px">Choose a different book</button></div>'+
 '<p id="qst" role="status" style="min-height:1.2em;font-size:15px"></p>';
 const form=root.querySelector('#f');form.parentNode.insertBefore(card,form);
 const $=id=>card.querySelector(id),qst=$('#qst');
@@ -168,6 +169,7 @@ $('#qsearch').addEventListener('input',async()=>{
     box.appendChild(el)}
   if(!n)box.textContent='No match.';
 });
+$('#qback').addEventListener('click',()=>{pick=null;qClient=null;$('#qedit').style.display='none';$('#qnew').value='';say2('');$('#qsearch').dispatchEvent(new Event('input'));$('#qsearch').focus()});
 $('#qsave').addEventListener('click',async()=>{
   if(!pick)return;const raw=$('#qnew').value.trim();
   if(!/^[0-9]+$/.test(raw)||Number(raw)<=0){say2('Copies must be a whole number, 1 or more.','err');return}
