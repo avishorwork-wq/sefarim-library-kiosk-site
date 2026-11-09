@@ -640,9 +640,9 @@ function norm(t){
 const STOP=new Set('the a an of in to and for with on at from by is are it its this that i want looking books book about me how what'.split(' '));
 function tokens(t){return new Set(norm(t).split(/\s+/).filter(w=>w&&!STOP.has(w)))}
 const HEB={"שבת": "shabbos shabbat", "שבתות": "shabbos shabbat", "שמחה": "joy happiness simcha", "לשמוח": "joy happiness enjoy", "שמח": "joy happiness", "שמחים": "joy happiness", "פסח": "pesach passover", "תפילה": "tefillah prayer davening", "תפילות": "tefillah prayer", "להתפלל": "tefillah prayer davening", "כוונה": "kavanah concentration focus", "כוונות": "kavanah concentration", "אמונה": "emunah faith", "ביטחון": "bitachon trust faith", "בטחון": "bitachon trust faith", "צדיקים": "tzaddikim righteous stories", "צדיק": "tzaddik righteous", "סיפורים": "stories", "סיפורי": "stories", "הלכה": "halacha laws", "הלכות": "halachos laws", "תשובה": "teshuva repentance", "כיפור": "kippur", "סוכות": "sukkos", "חנוכה": "chanukah", "פורים": "purim", "שבועות": "shavuos", "שואה": "holocaust", "חסידות": "chassidus chassidic", "חסידים": "chassidic", "מוסר": "mussar ethics", "גמרא": "gemara talmud", "תלמוד": "talmud gemara", "משנה": "mishnah", "תורה": "torah", "חומש": "chumash", "רמבם": "rambam maimonides", "רמב\"ם": "rambam maimonides", "לשון": "lashon speech", "מצוות": "mitzvos", "מצווה": "mitzvah", "נישואין": "marriage", "זוגיות": "marriage", "ילדים": "children", "חינוך": "chinuch education parenting", "קשה": "difficult hardship challenges", "קשים": "difficult hardship challenges", "קושי": "difficulty hardship", "סבל": "suffering", "דיכאון": "depression", "עצב": "sadness depression", "חרדה": "anxiety", "לחץ": "stress", "אושר": "happiness", "ביוגרפיה": "biography", "היסטוריה": "history", "ישראל": "israel", "ברכות": "blessings brachos", "ברכה": "blessing", "כשרות": "kashrus kosher", "פרנסה": "parnasa livelihood", "קבלה": "kabbalah", "מחשבה": "jewish thought hashkafa", "קרליבך": "carlebach", "חגים": "festivals holidays", "חג": "festival holiday", "הגדה": "haggadah seder", "סדר": "seder", "קדיש": "kaddish", "סת\"ם": "sefer torah scribe", "שלום": "peace shalom", "בית": "home", "ציצית": "tzitzis", "תפילין": "tefillin", "מזוזה": "mezuzah", "צניעות": "tznius modesty", "צדקה": "tzedakah charity", "חסד": "chesed kindness", "ענווה": "humility", "מידות": "middos character", "עבודה": "avodah service", "אהבה": "love", "יראה": "yirah fear awe", "דעת": "knowledge", "פרשה": "parsha weekly torah portion", "פרשת": "parsha weekly torah portion", "נביאים": "prophets nach", "תהילים": "tehillim psalms", "איוב": "iyov job"};const HPHR={"יום כיפור": "yom kippur teshuva", "ראש השנה": "rosh hashanah", "לשון הרע": "lashon hara gossip speech", "שלום בית": "shalom bayis marriage peace in the home", "בית המקדש": "beis hamikdash temple", "בין אדם לחברו": "interpersonal relationships", "חפץ חיים": "chofetz chaim", "רב קוק": "rav kook"};
-const ENX={daven:'tefillah prayer',davening:'tefillah prayer',davened:'tefillah prayer',davenen:'tefillah prayer',enjoy:'joy happiness simcha',enjoyable:'joy simcha',fun:'joy simcha',boring:'focus concentration kavanah',bored:'focus concentration kavanah',distracted:'focus concentration kavanah',kids:'children chinuch parenting',parenting:'children chinuch',shidduch:'marriage dating',dating:'marriage shidduch',parnassah:'parnasa livelihood',teshuvah:'teshuva repentance',gemora:'gemara talmud',scared:'fear anxiety bitachon',afraid:'fear anxiety bitachon',sad:'sadness depression happiness',lonely:'loneliness sadness',grief:'mourning loss comfort',mourning:'loss comfort aveilus',anger:'anger middos character',doubt:'faith emunah',doubts:'faith emunah',purpose:'meaning purpose of life',parnasa:'parnassah livelihood income',parnassa:'parnassah livelihood income',parnosa:'parnassah livelihood income',parnosah:'parnassah livelihood income'};
+const ENX={cook:'cooking bishul food preparation',cooking:'bishul food preparation',warm:'reheating food cooking bishul',reheat:'reheating food cooking bishul',reheating:'food cooking bishul',saturday:'shabbos shabbat',praying:'prayer tefillah',anxious:'anxiety worry bitachon',daven:'tefillah prayer',davening:'tefillah prayer',davened:'tefillah prayer',davenen:'tefillah prayer',enjoy:'joy happiness simcha',enjoyable:'joy simcha',fun:'joy simcha',boring:'focus concentration kavanah',bored:'focus concentration kavanah',distracted:'focus concentration kavanah',kids:'children chinuch parenting',parenting:'children chinuch',shidduch:'marriage dating',dating:'marriage shidduch',parnassah:'parnasa livelihood',teshuvah:'teshuva repentance',gemora:'gemara talmud',scared:'fear anxiety bitachon',afraid:'fear anxiety bitachon',sad:'sadness depression happiness',lonely:'loneliness sadness',grief:'mourning loss comfort',mourning:'loss comfort aveilus',anger:'anger middos character',doubt:'faith emunah',doubts:'faith emunah',purpose:'meaning purpose of life',parnasa:'parnassah livelihood income',parnassa:'parnassah livelihood income',parnosa:'parnassah livelihood income',parnosah:'parnassah livelihood income'};
 function hebExpand(q){
-  const ex0=[];for(const w of q.toLowerCase().split(/[^a-z]+/))if(ENX[w])ex0.push(ENX[w]);
+  const ex0=[];if(/\b(keep|keeping|observe|observing)\b/i.test(q)&&/\b(shabbos|shabbat|sabbath)\b/i.test(q))ex0.push('practical observance halachah laws guide');for(const w of q.toLowerCase().split(/[^a-z]+/))if(ENX[w])ex0.push(ENX[w]);
   if(!/[\u0590-\u05FF]/.test(q))return ex0.length?q+' '+ex0.join(' '):q;
   const extra=ex0;let rest=q;
   for(const [k,v] of Object.entries(HPHR))if(rest.includes(k)){extra.push(v);rest=rest.split(k).join(' ')}
@@ -660,6 +660,7 @@ const COMMON=new Set(["about", "above", "afraid", "after", "again", "against", "
 for(const w of 'על איך מה של את זה בזמן ספר ספרים לי אני עם או גם כל'.split(' '))STOP.add(w);
 
 
+for(const w of 'lamp lamps electrical appliances distracted distraction stop start starting get getting feel feeling cook cooking food warm warming heat heating reheat reheating keeping observing saturday law laws beginner beginners practical light lights turn switch phone electricity eat eating prayer praying anxious'.split(' '))COMMON.add(w);
 const HE_SKEL={'\u05d0':'','\u05d1':'b','\u05d2':'g','\u05d3':'d','\u05d4':'h','\u05d5':'','\u05d6':'z','\u05d7':'kh','\u05d8':'t','\u05d9':'','\u05db':'k','\u05dc':'l','\u05de':'m','\u05e0':'n','\u05e1':'s','\u05e2':'','\u05e4':'p','\u05e6':'ts','\u05e7':'k','\u05e8':'r','\u05e9':'sh','\u05ea':'t'};
 function skeleton(tok){
   let s;
@@ -772,9 +773,11 @@ function search(query,topic='',location='',limit=20){
   return searchAsync(query,topic,location,limit);
 }
 async function searchAsync(query,topic='',location='',limit=20,library=''){
-  query=canonicalWorkQuery(query);
+  query=canonicalWorkQuery(query);query=query.replace(/\b(shabbas|shabas|shabbat|shabbath|sabbath)\b/gi,'shabbos');
   if(!query.trim())return {results:[],message:'Describe a subject, person or kind of book.'};
-  const qx=hebExpand(query);const qv=await embed1(qx);
+  const electricalIntent=/\b(electric(?:al|ity)?|appliances?|lamps?)\b/i.test(query)||(/\b(lights?)\b/i.test(query)&&/\b(turn|turning|switch|switching)\b/i.test(query));
+  const shabbosIntent=/\b(shabbos|shabos|shabbat|sabbath)\b/i.test(query)||/שבת/.test(query);
+  const qx=hebExpand(query)+(electricalIntent&&shabbosIntent?' electricity appliances technology Shabbos laws':'');const qv=await embed1(qx);
   let semantic=semanticScores(qv);
   const qt=tokens(qx),nq=norm(query).trim();
   const [terms,fuzzed]=expandTerms(qt);
@@ -784,10 +787,10 @@ async function searchAsync(query,topic='',location='',limit=20,library=''){
   if(!alt.length)alt=[...qt].filter(t=>!VOCAB.has(t)&&fuzzed[t]).map(t=>fuzzed[t][0]);
   let nqAlt='';
   if(alt.length){
-    let qalt=qx;if(!Object.keys(kb).length&&qt.size>=4){for(const t of qt)if(!VOCAB.has(t)&&fuzzed[t]&&Math.abs(fuzzed[t][0].length-t.length)<=1&&fuzzed[t][0].slice(0,3)===t.slice(0,3))qalt=qalt.split(new RegExp('\\b'+t+'\\b','i')).join(fuzzed[t][0])}else qalt=alt.join(' ');const qv2=await embed1(qalt);
+    let qalt=qx;if(!Object.keys(kb).length&&qt.size>=2){for(const t of qt)if(!VOCAB.has(t)&&fuzzed[t]&&Math.abs(fuzzed[t][0].length-t.length)<=1&&fuzzed[t][0].slice(0,3)===t.slice(0,3))qalt=qalt.split(new RegExp('\\b'+t+'\\b','i')).join(fuzzed[t][0])}else qalt=alt.join(' ');const qv2=await embed1(qalt);
     const sem2=semanticScores(qv2);
     for(let i=0;i<semantic.length;i++)if(sem2[i]>semantic[i])semantic[i]=sem2[i];
-    nqAlt=norm(alt.join(' ')).trim();
+    nqAlt=qt.size===1?norm(alt.join(' ')).trim():'';
   }
   const acc=new Map();
   for(const [tok,wgt] of terms)for(const i of (INV.get(tok)||[]))acc.set(i,(acc.get(i)||0)+wgt);
@@ -804,7 +807,10 @@ async function searchAsync(query,topic='',location='',limit=20,library=''){
     const aliasHit=Array.isArray(b.aliases)&&b.aliases.some(a=>norm(a).trim()===nq);
     const boost=aliasHit||(nq&&(title.includes(nq)||author.includes(nq)))||(nqAlt&&(title.includes(nqAlt)||author.includes(nqAlt)))?0.35:0;
     if(semantic[i]<0.32&&overlap<0.5&&!boost)continue;
-    const hasD=String(b.summary||'').trim()?1:0;const score=(1-LEXW)*semantic[i]*(hasD?1:(LEXW<0.2?0.62:NODESC_W))+LEXW*overlap*(hasD?1:0.6)+boost;
+    const evidenceText=[b.title,b.summary,b.tags].join(' ');
+    const electricalEvidence=/\b(electric(?:al|ity)?|appliances?|technology)\b/i.test(evidenceText);
+    const contextAdjustment=electricalIntent&&shabbosIntent?(electricalEvidence?0.14:(/\b(chanukah|menorah|candle)\b/i.test(evidenceText)?-0.09:0)):0;
+    const hasD=String(b.summary||'').trim()?1:0;const score=contextAdjustment+(1-LEXW)*semantic[i]*(hasD?1:(LEXW<0.2?0.62:NODESC_W))+LEXW*overlap*(hasD?1:0.6)+boost;
     const matched=[...DOC_WORDS[i]].filter(t=>terms.has(t)).sort();
     ranked.push([score,i,semantic[i],overlap,matched]);
   }
