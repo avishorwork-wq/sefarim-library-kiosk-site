@@ -640,7 +640,7 @@ function norm(t){
 const STOP=new Set('the a an of in to and for with on at from by is are it its this that i want looking books book about me how what'.split(' '));
 function tokens(t){return new Set(norm(t).split(/\s+/).filter(w=>w&&!STOP.has(w)))}
 const HEB={"שבת": "shabbos shabbat", "שבתות": "shabbos shabbat", "שמחה": "joy happiness simcha", "לשמוח": "joy happiness enjoy", "שמח": "joy happiness", "שמחים": "joy happiness", "פסח": "pesach passover", "תפילה": "tefillah prayer davening", "תפילות": "tefillah prayer", "להתפלל": "tefillah prayer davening", "כוונה": "kavanah concentration focus", "כוונות": "kavanah concentration", "אמונה": "emunah faith", "ביטחון": "bitachon trust faith", "בטחון": "bitachon trust faith", "צדיקים": "tzaddikim righteous stories", "צדיק": "tzaddik righteous", "סיפורים": "stories", "סיפורי": "stories", "הלכה": "halacha laws", "הלכות": "halachos laws", "תשובה": "teshuva repentance", "כיפור": "kippur", "סוכות": "sukkos", "חנוכה": "chanukah", "פורים": "purim", "שבועות": "shavuos", "שואה": "holocaust", "חסידות": "chassidus chassidic", "חסידים": "chassidic", "מוסר": "mussar ethics", "גמרא": "gemara talmud", "תלמוד": "talmud gemara", "משנה": "mishnah", "תורה": "torah", "חומש": "chumash", "רמבם": "rambam maimonides", "רמב\"ם": "rambam maimonides", "לשון": "lashon speech", "מצוות": "mitzvos", "מצווה": "mitzvah", "נישואין": "marriage", "זוגיות": "marriage", "ילדים": "children", "חינוך": "chinuch education parenting", "קשה": "difficult hardship challenges", "קשים": "difficult hardship challenges", "קושי": "difficulty hardship", "סבל": "suffering", "דיכאון": "depression", "עצב": "sadness depression", "חרדה": "anxiety", "לחץ": "stress", "אושר": "happiness", "ביוגרפיה": "biography", "היסטוריה": "history", "ישראל": "israel", "ברכות": "blessings brachos", "ברכה": "blessing", "כשרות": "kashrus kosher", "פרנסה": "parnasa livelihood", "קבלה": "kabbalah", "מחשבה": "jewish thought hashkafa", "קרליבך": "carlebach", "חגים": "festivals holidays", "חג": "festival holiday", "הגדה": "haggadah seder", "סדר": "seder", "קדיש": "kaddish", "סת\"ם": "sefer torah scribe", "שלום": "peace shalom", "בית": "home", "ציצית": "tzitzis", "תפילין": "tefillin", "מזוזה": "mezuzah", "צניעות": "tznius modesty", "צדקה": "tzedakah charity", "חסד": "chesed kindness", "ענווה": "humility", "מידות": "middos character", "עבודה": "avodah service", "אהבה": "love", "יראה": "yirah fear awe", "דעת": "knowledge", "פרשה": "parsha weekly torah portion", "פרשת": "parsha weekly torah portion", "נביאים": "prophets nach", "תהילים": "tehillim psalms", "איוב": "iyov job"};const HPHR={"יום כיפור": "yom kippur teshuva", "ראש השנה": "rosh hashanah", "לשון הרע": "lashon hara gossip speech", "שלום בית": "shalom bayis marriage peace in the home", "בית המקדש": "beis hamikdash temple", "בין אדם לחברו": "interpersonal relationships", "חפץ חיים": "chofetz chaim", "רב קוק": "rav kook"};
-const ENX={cook:'cooking bishul food preparation',cooking:'bishul food preparation',warm:'reheating food cooking bishul',reheat:'reheating food cooking bishul',reheating:'food cooking bishul',saturday:'shabbos shabbat',praying:'prayer tefillah',anxious:'anxiety worry bitachon',daven:'tefillah prayer',davening:'tefillah prayer',davened:'tefillah prayer',davenen:'tefillah prayer',enjoy:'joy happiness simcha',enjoyable:'joy simcha',fun:'joy simcha',boring:'focus concentration kavanah',bored:'focus concentration kavanah',distracted:'focus concentration kavanah',kids:'children chinuch parenting',parenting:'children chinuch',shidduch:'marriage dating',dating:'marriage shidduch',parnassah:'parnasa livelihood',teshuvah:'teshuva repentance',gemora:'gemara talmud',scared:'fear anxiety bitachon',afraid:'fear anxiety bitachon',sad:'sadness depression happiness',lonely:'loneliness sadness',grief:'mourning loss comfort',mourning:'loss comfort aveilus',anger:'anger middos character',doubt:'faith emunah',doubts:'faith emunah',purpose:'meaning purpose of life',parnasa:'parnassah livelihood income',parnassa:'parnassah livelihood income',parnosa:'parnassah livelihood income',parnosah:'parnassah livelihood income'};
+const ENX={bracha:'brachos blessing',brocha:'brachos blessing',brochos:'brachos blessing',beracha:'brachos blessing',berachos:'brachos blessing',berakhos:'brachos blessing',twersky:'twerski',depressed:'depression sadness',cook:'cooking bishul food preparation',cooking:'bishul food preparation',warm:'reheating food cooking bishul',reheat:'reheating food cooking bishul',reheating:'food cooking bishul',saturday:'shabbos shabbat',praying:'prayer tefillah',anxious:'anxiety worry bitachon',daven:'tefillah prayer',davening:'tefillah prayer',davened:'tefillah prayer',davenen:'tefillah prayer',enjoy:'joy happiness simcha',enjoyable:'joy simcha',fun:'joy simcha',boring:'focus concentration kavanah',bored:'focus concentration kavanah',distracted:'focus concentration kavanah',kids:'children chinuch parenting',parenting:'children chinuch',shidduch:'marriage dating',dating:'marriage shidduch',parnassah:'parnasa livelihood',teshuvah:'teshuva repentance',gemora:'gemara talmud',scared:'fear anxiety bitachon',afraid:'fear anxiety bitachon',sad:'sadness depression happiness',lonely:'loneliness sadness',grief:'mourning loss comfort',mourning:'loss comfort aveilus',anger:'anger middos character',doubt:'faith emunah',doubts:'faith emunah',purpose:'meaning purpose of life',parnasa:'parnassah livelihood income',parnassa:'parnassah livelihood income',parnosa:'parnassah livelihood income',parnosah:'parnassah livelihood income'};
 function hebExpand(q){
   const ex0=[];if(/\b(keep|keeping|observe|observing)\b/i.test(q)&&/\b(shabbos|shabbat|sabbath)\b/i.test(q))ex0.push('practical observance halachah laws guide');for(const w of q.toLowerCase().split(/[^a-z]+/))if(ENX[w])ex0.push(ENX[w]);
   if(!/[\u0590-\u05FF]/.test(q))return ex0.length?q+' '+ex0.join(' '):q;
@@ -747,11 +747,11 @@ function expandTerms(qt){
   return [terms,fuzzed];
 }
 function keyboardMap(query){
-  const nq=norm(query),parts=nq.split(/\s+/).filter(Boolean),out={};
+  const parts=stripMarks(String(query).toLowerCase()).split(/\s+/).filter(Boolean),out={};
   if(!parts.length||!parts.every(t=>/^[a-z,.';\[\]\/]+$/.test(t)))return out;
   for(const t of parts){
     const w=[...t].map(c=>KB[c]||'').join('');
-    if(w.length>=2&&VOCAB.has(w))out[t]=w;
+    if(w.length>=2&&(VOCAB.has(w)||HEB[w]||HPHR[w]))out[t]=w;
   }
   return out;
 }
@@ -782,9 +782,14 @@ async function searchAsync(query,topic='',location='',limit=20,library=''){
   const qt=tokens(qx),nq=norm(query).trim();
   const [terms,fuzzed]=expandTerms(qt);
   const kb=keyboardMap(query);
-  for(const w of Object.values(kb))if(!terms.has(w))terms.set(w,KB_W);
-  let alt=Object.values(kb);
-  if(!alt.length)alt=[...qt].filter(t=>!VOCAB.has(t)&&fuzzed[t]).map(t=>fuzzed[t][0]);
+  const kbAlt=[];
+  for(const w of Object.values(kb)){
+    const ex=(HEB[w]||HPHR[w]||'').split(/\s+/).filter(Boolean);
+    if(ex.length){for(const e of ex)if(!terms.has(e))terms.set(e,KB_W);kbAlt.push(ex.join(' '))}
+    else{if(!terms.has(w))terms.set(w,KB_W);kbAlt.push(w)}
+  }
+  let alt=kbAlt;
+  if(!alt.length)alt=[...qt].filter(t=>fuzzed[t]&&(!VOCAB.has(t)||(INV.get(fuzzed[t][0])||[]).length>(INV.get(t)||[]).length)).map(t=>fuzzed[t][0]);
   let nqAlt='';
   if(alt.length){
     let qalt=qx;if(!Object.keys(kb).length&&qt.size>=2){for(const t of qt)if(!VOCAB.has(t)&&fuzzed[t]&&Math.abs(fuzzed[t][0].length-t.length)<=1&&fuzzed[t][0].slice(0,3)===t.slice(0,3))qalt=qalt.split(new RegExp('\\b'+t+'\\b','i')).join(fuzzed[t][0])}else qalt=alt.join(' ');const qv2=await embed1(qalt);
@@ -805,7 +810,8 @@ async function searchAsync(query,topic='',location='',limit=20,library=''){
     const title=norm(b.title),author=norm(b.author||'');
     const overlap=Math.min((acc.get(i)||0)/denom,1.0);
     const aliasHit=Array.isArray(b.aliases)&&b.aliases.some(a=>norm(a).trim()===nq);
-    const boost=aliasHit||(nq&&(title.includes(nq)||author.includes(nq)))||(nqAlt&&(title.includes(nqAlt)||author.includes(nqAlt)))?0.35:0;
+    const phraseHit=(nq&&(title.includes(nq)||author.includes(nq)))||(nqAlt&&(title.includes(nqAlt)||author.includes(nqAlt)));
+    const boost=aliasHit?0.5:(phraseHit?0.35:0);
     if(semantic[i]<0.32&&overlap<0.5&&!boost)continue;
     const evidenceText=[b.title,b.summary,b.tags].join(' ');
     const electricalEvidence=/\b(electric(?:al|ity)?|appliances?|technology)\b/i.test(evidenceText);
@@ -822,7 +828,7 @@ async function searchAsync(query,topic='',location='',limit=20,library=''){
   });
   const out={results,model:'sentence-transformers/all-MiniLM-L6-v2 (quantized, in-browser)',total_matching_filter:ranked.length,message:'Suggestions are ranked matches, not guarantees of coverage.'};
   // Did-you-mean, context-rescored; never a silent substitution.
-  const missing=[...qt].filter(t=>!VOCAB.has(t)&&!kb[t]&&!COMMON.has(t)&&!/[\u0590-\u05FF]/.test(t));
+  const missing=[...qt].filter(t=>!VOCAB.has(t)&&!kb[t]&&!COMMON.has(t)&&!ENX[t]&&!/[\u0590-\u05FF]/.test(t));
   if(missing.length){
     const base=new Set();
     for(const t2 of qt)if(VOCAB.has(t2))for(const i of (INV.get(t2)||[]))base.add(i);
@@ -854,6 +860,7 @@ async function searchAsync(query,topic='',location='',limit=20,library=''){
 }
 
 function canonicalWorkQuery(q){return String(q).replace(/^(shemirat|shmirat|shemiras|shmiras|shemirath|shmirath)\s+(shabbat|shabbos|shabbath)(?=\s|$)/i,'Shemirath Shabbath')}
+
 function autocomplete(q,limit=8){
   q=canonicalWorkQuery(q);
   const selectedLibrary=$('#library')?.value||'';
