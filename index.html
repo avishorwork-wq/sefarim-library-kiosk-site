@@ -986,7 +986,7 @@ async function loadSupplementalData(url){
   if(!validData(d,p)||p.catalog.some(b=>b.library!=='עברית (303)'))throw new Error('supplemental catalog invalid');
   return d;
 }
-async function boot(onProgress){
+async function loadAllCatalogs(onProgress){
   onProgress&&onProgress('Loading the catalog...');
   const primary=await loadData(onProgress);let data=primary;
   if(CFG.hebrewCatalogUrl){
@@ -1000,6 +1000,10 @@ async function boot(onProgress){
       data={catalog,vecs,dims:primary.dims,version:primary.version+' + '+extra.version,primaryVersion:primary.version,secondaryVersion:extra.version};
     }catch(e){data={...primary,secondaryUnavailable:true}}
   }
+  return data;
+}
+async function boot(onProgress){
+  const data=await loadAllCatalogs(onProgress);
   BOOKS=data.catalog;VECS=data.vecs;DIMS=data.dims;
   buildIndexes();
   populateFilters();
@@ -1016,12 +1020,12 @@ async function refreshIfChanged(){
     if(!memCache)return;
     const v=await dataRpc('version');
     if(v.version===memCache.version)return;
-    const data=await loadData();
+    const data=await loadAllCatalogs();
     BOOKS=data.catalog;VECS=data.vecs;DIMS=data.dims;
     buildIndexes();
     if(typeof populateFilters==='function')populateFilters();
     const cc=document.querySelector('#catalog-count');
-    if(cc)cc.textContent=`${data.catalog.length.toLocaleString()} catalog rows \u00b7 Catalog version ${data.version}`;
+    if(cc)cc.textContent=`${data.catalog.length.toLocaleString()} catalog rows · ${data.catalog.filter(b=>b.researched).length.toLocaleString()} source-backed descriptions · Original locations retained · Catalog version ${data.version}`;
     const q=document.querySelector('#query');
     if(q&&q.value.trim())run();
   }catch(e){/* keep serving the current snapshot */}
