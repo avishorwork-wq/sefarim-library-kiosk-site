@@ -500,7 +500,7 @@ body.typing #suggest{height:auto!important;overflow-y:auto}
 #kbd.open{animation:keyboard-in 180ms ease-out both}
 @keyframes keyboard-in{from{opacity:0;transform:translate(-50%,12px)}to{opacity:1;transform:translate(-50%,0)}}
 @media(prefers-reduced-motion:reduce){#kbd.open{animation:none}}
-</style></head><script>/* Backend endpoints. Defaults inside index.html point at the existing sheet-backed service. Override here to change the backend without editing index.html. */
+</style><link rel="manifest" href="./3-manifest.webmanifest"><meta name="theme-color" content="#090b16"><script src="./4-pwa.js" defer></script></head><script>/* Backend endpoints. Defaults inside index.html point at the existing sheet-backed service. Override here to change the backend without editing index.html. */
 window.KIOSK_CONFIG={
   dataEndpoint: 'https://script.google.com/macros/s/AKfycbysgzWStmxSyhZgejGV6JobiUc6g3v_98RUviisAczv8yf1MbDA3hRWNrXlCcyfeCNz/exec',
   adminEndpoint: 'https://script.google.com/macros/s/AKfycbysgzWStmxSyhZgejGV6JobiUc6g3v_98RUviisAczv8yf1MbDA3hRWNrXlCcyfeCNz/exec',
@@ -948,8 +948,10 @@ function validData(d,v){
   }catch(e){return false}
 }
 async function loadData(onProgress,depth){
-  const v=await dataRpc('version');
+  await Promise.resolve();
   const cached=memCache||await idbGet('data');
+  let v;try{v=await dataRpc('version')}catch(e){if(validData(cached)){memCache=cached;window.KioskConnection?.cached(cached.savedAt);return cached}throw e}
+  window.KioskConnection?.live();
   if(cached&&cached.version===v.version){
     if(validData(cached,v)){memCache=cached;return cached}
     memCache=null;await idbSet('data',null);
@@ -989,7 +991,7 @@ async function loadData(onProgress,depth){
     if((depth||0)<3)return loadData(onProgress,(depth||0)+1);
     throw new Error('catalog is updating');
   }
-  const data={version:v.version,catalog,vecs,dims:d};
+  const data={version:v.version,catalog,vecs,dims:d,savedAt:Date.now()};
   if(!validData(data,v))throw new Error('assembled snapshot invalid');
   memCache=data;idbSet('data',data);
   return data;
@@ -1043,7 +1045,7 @@ async function refreshCatalog(){
   try{
     if(!memCache)return;
     const v=await dataRpc('version');
-    if(v.version===memCache.version)return;
+    if(v.version===memCache.version){window.KioskConnection?.live();return;}
     const data=await loadAllCatalogs();
     BOOKS=data.catalog;VECS=data.vecs;DIMS=data.dims;
     buildIndexes();
@@ -1052,8 +1054,9 @@ async function refreshCatalog(){
     if(cc)cc.textContent=`${data.catalog.length.toLocaleString()} catalog rows · ${data.catalog.filter(b=>b.researched).length.toLocaleString()} source-backed descriptions · Original locations retained · Catalog version ${data.version}`;
     const q=document.querySelector('#query');
     const x=scrollX,y=scrollY;if(q&&q.value.trim())await run();scrollTo(x,y);window.dispatchEvent(new CustomEvent('kiosk:updated',{detail:{version:data.version}}));
-  }catch(e){/* keep serving the current snapshot */}
+  }catch(e){window.KioskConnection?.cached(memCache?.savedAt);/* keep serving the validated snapshot */}
 }
+addEventListener('online',refreshIfChanged);
 setInterval(()=>{if(!document.hidden)refreshIfChanged()},180000);
 const updateChannel=typeof BroadcastChannel==='function'?new BroadcastChannel('library-catalog-updates'):null;
 if(updateChannel)updateChannel.onmessage=e=>{if(e.data==='catalog-updated')refreshIfChanged()};
