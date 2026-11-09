@@ -575,7 +575,7 @@ let downIn=null;
 document.addEventListener('pointerdown',e=>{
  downIn=e.target.closest&&e.target.closest('#kbd,input,textarea');
  const f=e.target.closest&&e.target.closest('input,textarea');
- if(f&&f.inputMode==='none'&&!kbd.classList.contains('hidden-forever')){target=f;kbd.classList.add('open');}
+ if(f&&f.inputMode==='none'&&!kbd.classList.contains('hidden-forever')){target=f;}
 },true);
 document.addEventListener('click',e=>{
  if(downIn){
