@@ -680,9 +680,12 @@ const NODESC_W=0.82,FUZZ_W=0.7,SKEL_W=0.55,KB_W=0.65;
 let BOOKS=[],DOC_WORDS=[],VECS=null,DIMS=384;
 const INV=new Map(),VLEN=new Map(),SKEL=new Map(),SLEN=new Map();
 let VOCAB=new Set();
+// Reversible kiosk-only exclusions. Keep BOOKS/vector offsets unchanged.
+const KIOSK_EXCLUDED_ROWS=new Set([418,420,422,428,429]);
+function kioskVisible(b){return b.hidden!==true&&!KIOSK_EXCLUDED_ROWS.has(Number(b.row))}
 function buildIndexes(){
   INV.clear();VLEN.clear();SKEL.clear();SLEN.clear();
-  DOC_WORDS=BOOKS.map(b=>tokens(['title','author','summary','tags'].map(k=>String(b[k]??'')).join('. ')));
+  DOC_WORDS=BOOKS.map(b=>!kioskVisible(b)?new Set():tokens(['title','author','summary','tags'].map(k=>String(b[k]??'')).join('. ')));
   DOC_WORDS.forEach((ws,i)=>{for(const w of ws){if(!INV.has(w))INV.set(w,[]);INV.get(w).push(i)}});
   VOCAB=new Set(INV.keys());
   for(const w of VOCAB){
@@ -777,6 +780,7 @@ async function searchAsync(query,topic='',location='',limit=20){
   const ranked=[];
   for(let i=0;i<BOOKS.length;i++){
     const b=BOOKS[i];
+    if(!kioskVisible(b))continue;
     if(topic&&String(b.topic).trim()!==topic)continue;
     if(location&&String(b.location)!==location)continue;
     const title=norm(b.title),author=norm(b.author||'');
@@ -830,7 +834,7 @@ function autocomplete(q,limit=8){
   const qn=norm(q).trim();
   if(qn.length<2)return {suggestions:[]};
   const out=[],seen=new Set(),starts=[],contains=[];
-  for(const b of BOOKS)for(const raw of [b.title,b.author]){
+  for(const b of BOOKS.filter(kioskVisible))for(const raw of [b.title,b.author]){
     const t=String(raw||'').trim(),tn=norm(t).trim();
     if(!t||seen.has(tn))continue;
     if(tn.startsWith(qn)){starts.push(t);seen.add(tn)}
