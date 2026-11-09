@@ -1229,9 +1229,9 @@ html[dir=rtl] article h2,html[dir=rtl] .author,html[dir=rtl] .description{text-a
  document.body.append(dialog);
  let opener=null,closing=false;
  const reduced=()=>matchMedia('(prefers-reduced-motion: reduce)').matches;
- const animate=(frames,ms)=>reduced()?Promise.resolve():dialog.animate(frames,{duration:ms,easing:'cubic-bezier(.2,.7,.2,1)',fill:'none'}).finished.catch(()=>{});
- async function close(){if(!dialog.open||closing)return;closing=true;await animate([{opacity:1,transform:'translateY(0) scale(1)'},{opacity:0,transform:'translateY(10px) scale(.985)'}],140);dialog.close();document.body.classList.remove('detail-open');closing=false;if(opener?.isConnected)opener.focus({preventScroll:true});}
- function open(article){if(dialog.open||closing)return;opener=article.querySelector('.book-open')||article;const clone=article.cloneNode(true);clone.querySelector('.book-open')?.remove();clone.removeAttribute('tabindex');dialog.querySelector('.detail-content').replaceChildren(clone);const title=clone.querySelector('h2');if(title){title.id='detail-title';dialog.setAttribute('aria-labelledby',title.id)}document.getElementById('kbd')?.classList.remove('open');document.activeElement?.blur();document.body.classList.add('detail-open');dialog.showModal();dialog.scrollTop=0;dialog.querySelector('.detail-close').focus({preventScroll:true});animate([{opacity:0,transform:'translateY(14px) scale(.975)'},{opacity:1,transform:'translateY(0) scale(1)'}],200);}
+ let motion=null;const animate=(frames,ms)=>{motion?.cancel();if(reduced())return Promise.resolve();motion=dialog.animate(frames,{duration:ms,easing:'cubic-bezier(.2,.7,.2,1)',fill:'forwards'});return motion.finished.catch(()=>{})};
+ async function close(){if(!dialog.open||closing)return;closing=true;await animate([{opacity:1,transform:'none'},{opacity:0,transform:'none'}],120);dialog.close();motion?.cancel();document.body.classList.remove('detail-open');closing=false;if(opener?.isConnected)opener.focus({preventScroll:true});}
+ function open(article){if(dialog.open||closing)return;opener=article.querySelector('.book-open')||article;const clone=article.cloneNode(true);clone.querySelector('.book-open')?.remove();clone.removeAttribute('tabindex');dialog.querySelector('.detail-content').replaceChildren(clone);const title=clone.querySelector('h2');if(title){title.id='detail-title';dialog.setAttribute('aria-labelledby',title.id)}document.getElementById('kbd')?.classList.remove('open');document.activeElement?.blur();document.body.classList.add('detail-open');dialog.showModal();dialog.scrollTop=0;dialog.querySelector('.detail-close').focus({preventScroll:true});animate([{opacity:0,transform:'translateY(8px)'},{opacity:1,transform:'translateY(0)'}],160).then(()=>{if(!closing)motion?.cancel()});}
  dialog.querySelector('.detail-close').addEventListener('click',close);
  dialog.addEventListener('cancel',e=>{e.preventDefault();close()});
  dialog.addEventListener('click',e=>{if(e.target===dialog){const r=dialog.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)close()}});
@@ -1294,7 +1294,12 @@ logo.addEventListener('contextmenu',e=>e.preventDefault());logo.addEventListener
  button:focus:not(:focus-visible),a:focus:not(:focus-visible),summary:focus:not(:focus-visible),[role=button]:focus:not(:focus-visible){outline:none}
  button:focus-visible,a:focus-visible,summary:focus-visible,[role=button]:focus-visible{outline:3px solid #338ab4;outline-offset:3px;border-radius:12px}
  button:active,summary:active{filter:brightness(.96)}
- #catalog-count,.notice{display:none!important}
+ #book-detail::backdrop{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;animation:none!important;background:#07182e80!important}
+ .detail-close{display:inline-flex;align-items:center;justify-content:center;min-width:112px!important;min-height:48px!important;border-radius:14px!important;transform:none!important;transition:background-color .12s,opacity .12s;box-shadow:none}
+ .detail-close:active{opacity:.78;filter:none}
+ @media(hover:none){button:hover{transform:none}button:active{transform:none;opacity:.86}}
+ 
+ #catalog-count{display:none!important} .notice:has(+ #results){display:none!important}
  #status.quiet-ready{display:none!important}
  .filter-panel>summary{display:block;width:100%;padding:14px 0;min-height:48px}
  #request{padding:0!important;overflow:hidden}
