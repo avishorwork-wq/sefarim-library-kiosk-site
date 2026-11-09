@@ -1367,11 +1367,18 @@ html[dir=rtl] article h2,html[dir=rtl] .author,html[dir=rtl] .description{text-a
 (()=>{const logo=document.querySelector('.mast-logo');if(!logo)return;let timer=null,origin=null;
 const cancel=()=>{clearTimeout(timer);timer=null;origin=null};
 const open=()=>{cancel();location.hash='admin'};
-logo.tabIndex=0;logo.setAttribute('role','button');logo.setAttribute('aria-label','Library account');logo.style.touchAction='manipulation';logo.style.webkitTouchCallout='none';logo.style.userSelect='none';
-logo.addEventListener('pointerdown',e=>{if(e.button!==0)return;cancel();origin=[e.clientX,e.clientY];timer=setTimeout(open,1800)});
-logo.addEventListener('pointermove',e=>{if(origin&&Math.hypot(e.clientX-origin[0],e.clientY-origin[1])>12)cancel()});
-for(const event of ['pointerup','pointercancel','pointerleave'])logo.addEventListener(event,cancel);
-logo.addEventListener('contextmenu',e=>e.preventDefault());logo.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();open()}});
+logo.tabIndex=0;logo.draggable=false;logo.setAttribute('role','button');logo.setAttribute('aria-label','Library account');
+for(const [key,value] of [['touch-action','none'],['-webkit-touch-callout','none'],['-webkit-user-select','none'],['user-select','none'],['-webkit-user-drag','none']])logo.style.setProperty(key,value,'important');
+const begin=(x,y)=>{cancel();origin=[x,y];timer=setTimeout(open,1800)};
+const move=(x,y)=>{if(origin&&Math.hypot(x-origin[0],y-origin[1])>12)cancel()};
+logo.addEventListener('pointerdown',e=>{if(e.button!==0||e.isPrimary===false)return;e.preventDefault();logo.setPointerCapture?.(e.pointerId);begin(e.clientX,e.clientY)},{passive:false});
+logo.addEventListener('pointermove',e=>move(e.clientX,e.clientY));
+for(const event of ['pointerup','pointercancel','lostpointercapture'])logo.addEventListener(event,cancel);
+logo.addEventListener('touchstart',e=>{if(e.touches.length!==1){cancel();return}e.preventDefault();begin(e.touches[0].clientX,e.touches[0].clientY)},{passive:false});
+logo.addEventListener('touchmove',e=>{if(e.touches.length!==1){cancel();return}e.preventDefault();move(e.touches[0].clientX,e.touches[0].clientY)},{passive:false});
+for(const event of ['touchend','touchcancel'])logo.addEventListener(event,cancel);
+for(const event of ['contextmenu','selectstart','dragstart'])logo.addEventListener(event,e=>e.preventDefault());
+logo.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();open()}});
 })();
 </script>
 <script src="./5-idle-main.js" defer></script><script>(()=>{
