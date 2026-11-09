@@ -503,7 +503,7 @@ $('#request-form').addEventListener('submit',async e=>{e.preventDefault();const 
 
 /* Boot: load catalog + vectors (cached), then the language model. */
 function populateFilters(){const lib=$('#library');if(lib){const prev=lib.value,libs=[...new Set(BOOKS.filter(kioskVisible).map(b=>b.library||'ENGLISH (301)'))];lib.replaceChildren(new Option('All libraries',''));for(const v of libs)lib.add(new Option(v,v));if(!libs.includes('עברית (303)')){const o=new Option('עברית (303) - inventory not loaded','עברית (303)');o.disabled=true;lib.add(o)}lib.value=libs.includes(prev)?prev:'';}for(const [sel,key] of [['#topic','topic'],['#location','location']]){const el=$(sel);const cur=el.value;el.innerHTML='<option value="">'+(key==='topic'?'All topics':'All stickers')+'</option>';const values=[...new Set(BOOKS.map(b=>String(b[key]).trim()))].sort((a,b)=>a.localeCompare(b,undefined,{numeric:true}));for(const v of values){const o=document.createElement('option');o.value=v;o.textContent=v;el.append(o)}if([...el.options].some(o=>o.value===cur))el.value=cur}}
-const searchReady=(async()=>{try{const data=await boot(m=>{$('#status').textContent=m});books=data.catalog;populateFilters();$('#catalog-count').textContent=`${books.length.toLocaleString()} catalog rows · ${books.filter(b=>b.researched).length.toLocaleString()} source-backed descriptions · Original locations retained · Catalog version ${data.version}`;$('#status').textContent='Ready. Search by meaning, title or author.';const initial=new URLSearchParams(location.search).get('q');if(initial){$('#query').value=initial;run()}return true}catch(e){$('#status').textContent='The catalog could not load ('+(e&&e.message?e.message:'network')+'). Please reopen the page.';return false}})();
+const searchReady=(async()=>{try{const data=await boot(m=>{$('#status').textContent=m});books=data.catalog;populateFilters();$('#catalog-count').textContent=`${books.length.toLocaleString()} catalog rows · ${books.filter(b=>b.researched).length.toLocaleString()} source-backed descriptions · Original locations retained · Catalog version ${data.version}`;$('#status').textContent=data.secondaryUnavailable?'English collection is ready. Hebrew collection could not load. Reopen the page to retry.':'Ready. Search by meaning, title or author.';const initial=new URLSearchParams(location.search).get('q');if(initial){$('#query').value=initial;run()}return true}catch(e){$('#status').textContent='The catalog could not load ('+(e&&e.message?e.message:'network')+'). Please reopen the page.';return false}})();
 
 /* Liquid glass background: animated refraction/caustics on WebGL, graceful fallback. */
 (function(){const cv=document.getElementById('glass-bg');if(!cv)return;const gl=cv.getContext('webgl',{antialias:false,alpha:false});if(!gl){cv.style.background='linear-gradient(140deg,#eef6f2,#e2efe9 45%,#d8ebe3 70%,#e6f0f4)';return}
@@ -965,9 +965,34 @@ async function loadData(onProgress,depth){
   memCache=data;idbSet('data',data);
   return data;
 }
+// Read-only supplementary inventory. Its own atomic file carries its catalog and vector scales.
+async function loadSupplementalData(url){
+  const res=await fetch(url);if(!res.ok)throw new Error('supplemental download failed');
+  const p=await res.json();
+  if(!p||p.dims!==384||p.rows!==1130||!Array.isArray(p.catalog)||p.catalog.length!==p.rows||typeof p.version!=='string'||typeof p.scale_b64!=='string'||typeof p.vec_b64!=='string')throw new Error('supplemental shape invalid');
+  const sb=b64ToBuf(p.scale_b64),vb=b64ToBuf(p.vec_b64);
+  if(sb.byteLength!==384*4||vb.byteLength!==p.rows*384)throw new Error('supplemental vector length invalid');
+  const scale=new Float32Array(sb),i8=new Int8Array(vb),vecs=new Float32Array(i8.length);
+  if([...scale].some(x=>!Number.isFinite(x)||x<=0))throw new Error('supplemental scale invalid');
+  for(let i=0;i<p.rows;i++){let sum=0;const off=i*384;for(let j=0;j<384;j++){const v=i8[off+j]/127*scale[j];vecs[off+j]=v;sum+=v*v}const inv=sum>0?1/Math.sqrt(sum):0;for(let j=0;j<384;j++)vecs[off+j]*=inv}
+  const d={version:p.version,catalog:p.catalog,vecs,dims:384};
+  if(!validData(d,p)||p.catalog.some(b=>b.library!=='עברית (303)'))throw new Error('supplemental catalog invalid');
+  return d;
+}
 async function boot(onProgress){
   onProgress&&onProgress('Loading the catalog...');
-  const data=await loadData(onProgress);
+  const primary=await loadData(onProgress);let data=primary;
+  if(CFG.hebrewCatalogUrl){
+    try{
+      onProgress&&onProgress('Loading the Hebrew collection...');
+      const extra=await loadSupplementalData(CFG.hebrewCatalogUrl);
+      if(primary.catalog.some(b=>(b.library||'ENGLISH (301)')!=='ENGLISH (301)'))throw new Error('primary library mismatch');
+      const catalog=primary.catalog.concat(extra.catalog),ids=new Set();
+      for(const b of catalog){const id=JSON.stringify([b.library||'ENGLISH (301)',b.row]);if(ids.has(id))throw new Error('duplicate library record');ids.add(id)}
+      const vecs=new Float32Array(primary.vecs.length+extra.vecs.length);vecs.set(primary.vecs);vecs.set(extra.vecs,primary.vecs.length);
+      data={catalog,vecs,dims:primary.dims,version:primary.version+' + '+extra.version,primaryVersion:primary.version,secondaryVersion:extra.version};
+    }catch(e){data={...primary,secondaryUnavailable:true}}
+  }
   BOOKS=data.catalog;VECS=data.vecs;DIMS=data.dims;
   buildIndexes();
   onProgress&&onProgress('Loading the language model (first visit downloads 22 MB, then cached)...');
@@ -1037,7 +1062,7 @@ addEventListener('hashchange',go);go()})()</script>
 </script>
 <script>
 (()=>{
- const pairs={'Not recorded':'לא נרשם','All queries stay on the computer running this kiosk. The first start downloads the model; later searches use the local copy. Scores are ranking signals, not probabilities. The model is strongest in English.':'החיפושים נשארים במכשיר שמפעיל את הקיוסק. בהפעלה הראשונה מורידים את המודל; חיפושים נוספים משתמשים בעותק המקומי. הציונים משמשים לדירוג ואינם הסתברויות. המודל חזק ביותר באנגלית.','Search uses the pretrained all-MiniLM-L6-v2 sentence model, combined with title and word matching. It compares your request with the catalog. It does not invent answers or book contents. Only source-backed descriptions are included in semantic search; records still under research are searchable by their listed title and author. An empty summary means the description has not yet passed its source check.':'החיפוש משלב מודל שפה עם התאמת שמות ומילים ומשווה את הבקשה לקטלוג. הוא אינו ממציא תשובות או תוכן של ספרים. רשומות שעדיין בבדיקה ניתנות לחיפוש לפי השם והמחבר הרשומים. תיאור ריק פירושו שהתיאור עדיין לא אומת מול מקור.',
+ const pairs={'English collection is ready. Hebrew collection could not load. Reopen the page to retry.':'האוסף באנגלית מוכן. האוסף בעברית לא נטען. פתחו מחדש את הדף כדי לנסות שוב.','Loading the Hebrew collection...':'טוענים את האוסף בעברית...','Not recorded':'לא נרשם','All queries stay on the computer running this kiosk. The first start downloads the model; later searches use the local copy. Scores are ranking signals, not probabilities. The model is strongest in English.':'החיפושים נשארים במכשיר שמפעיל את הקיוסק. בהפעלה הראשונה מורידים את המודל; חיפושים נוספים משתמשים בעותק המקומי. הציונים משמשים לדירוג ואינם הסתברויות. המודל חזק ביותר באנגלית.','Search uses the pretrained all-MiniLM-L6-v2 sentence model, combined with title and word matching. It compares your request with the catalog. It does not invent answers or book contents. Only source-backed descriptions are included in semantic search; records still under research are searchable by their listed title and author. An empty summary means the description has not yet passed its source check.':'החיפוש משלב מודל שפה עם התאמת שמות ומילים ומשווה את הבקשה לקטלוג. הוא אינו ממציא תשובות או תוכן של ספרים. רשומות שעדיין בבדיקה ניתנות לחיפוש לפי השם והמחבר הרשומים. תיאור ריק פירושו שהתיאור עדיין לא אומת מול מקור.',
  'Original shelf locations and quantities retained. Similar titles remain separate records.':'מיקומי המדפים והכמויות המקוריים נשמרו. ספרים בעלי שמות דומים נשארים רשומות נפרדות.',
  'Downloading the catalog index (one-time per update)...':'מורידים את אינדקס הקטלוג (פעם אחת לכל עדכון)...',
  'Loading the language model (first visit downloads 22 MB, then cached)...':'טוענים את מודל השפה (בביקור הראשון מורידים 22 מ״ב, ובהמשך משתמשים בעותק השמור)...',
