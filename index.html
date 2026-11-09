@@ -1027,7 +1027,9 @@ async function boot(onProgress){
 
 /* ---- live catalog refresh: poll the version pointer; on change, reload the
    pinned snapshot and re-run the current query without wiping the search box ---- */
-async function refreshIfChanged(){
+let refreshInFlight=null;
+function refreshIfChanged(){if(refreshInFlight)return refreshInFlight;refreshInFlight=refreshCatalog().finally(()=>{refreshInFlight=null});return refreshInFlight}
+async function refreshCatalog(){
   try{
     if(!memCache)return;
     const v=await dataRpc('version');
@@ -1039,10 +1041,13 @@ async function refreshIfChanged(){
     const cc=document.querySelector('#catalog-count');
     if(cc)cc.textContent=`${data.catalog.length.toLocaleString()} catalog rows · ${data.catalog.filter(b=>b.researched).length.toLocaleString()} source-backed descriptions · Original locations retained · Catalog version ${data.version}`;
     const q=document.querySelector('#query');
-    if(q&&q.value.trim())run();
+    const x=scrollX,y=scrollY;if(q&&q.value.trim())await run();scrollTo(x,y);window.dispatchEvent(new CustomEvent('kiosk:updated',{detail:{version:data.version}}));
   }catch(e){/* keep serving the current snapshot */}
 }
-setInterval(refreshIfChanged,180000);
+setInterval(()=>{if(!document.hidden)refreshIfChanged()},180000);
+const updateChannel=typeof BroadcastChannel==='function'?new BroadcastChannel('library-catalog-updates'):null;
+if(updateChannel)updateChannel.onmessage=e=>{if(e.data==='catalog-updated')refreshIfChanged()};
+window.KioskUpdates={publish(){updateChannel?.postMessage('catalog-updated');return refreshIfChanged()}};
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshIfChanged()});
 
 // Exposed for regression testing and future integrations (read-only).
@@ -1254,5 +1259,17 @@ html[dir=rtl] article h2,html[dir=rtl] .author,html[dir=rtl] .description{text-a
  window.KioskUI={setLanguage:set,getLanguage:()=>lang,chooseLanguage:openLanguage};if(location.hash!=='#admin')openLanguage();
 })();
 
+</script>
+
+<script>
+(()=>{const logo=document.querySelector('.mast-logo');if(!logo)return;let timer=null,origin=null;
+const cancel=()=>{clearTimeout(timer);timer=null;origin=null};
+const open=()=>{cancel();location.hash='admin'};
+logo.tabIndex=0;logo.setAttribute('role','button');logo.setAttribute('aria-label','Library account');logo.style.touchAction='manipulation';logo.style.webkitTouchCallout='none';logo.style.userSelect='none';
+logo.addEventListener('pointerdown',e=>{if(e.button!==0)return;cancel();origin=[e.clientX,e.clientY];timer=setTimeout(open,1800)});
+logo.addEventListener('pointermove',e=>{if(origin&&Math.hypot(e.clientX-origin[0],e.clientY-origin[1])>12)cancel()});
+for(const event of ['pointerup','pointercancel','pointerleave'])logo.addEventListener(event,cancel);
+logo.addEventListener('contextmenu',e=>e.preventDefault());logo.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();open()}});
+})();
 </script>
 </body></html>
