@@ -32,8 +32,8 @@ function bytesFromB64(b){const s=atob(b),u=new Uint8Array(s.length);for(let i=0;
 async function getExtractor(){
   if(extractor)return extractor;
   say('Loading the search model (first save only)...');
-  const mod=await import('https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.7.6');
-  extractor=await mod.pipeline('feature-extraction','Xenova/all-MiniLM-L6-v2',{dtype:'q8'});
+  await import('./45-search-loader.js');
+  extractor=await window.loadPinnedSearchModel();
   return extractor;
 }
 async function rpc(fn,...args){
