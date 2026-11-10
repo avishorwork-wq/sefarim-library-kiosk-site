@@ -1076,9 +1076,19 @@ async function loadData(onProgress,depth){
   return data;
 }
 // Read-only supplementary inventory. Its own atomic file carries its catalog and vector scales.
+let liveHebrewVersion=null;
 async function loadSupplementalData(url){
-  const res=await fetch(url);if(!res.ok)throw new Error('supplemental download failed');
-  const p=await res.json();
+  const hv=await dataRpc('heversion');
+  if(!hv||typeof hv.version!=='string')throw new Error('Hebrew version unavailable');
+  let p;
+  if(hv.version==='he303-v2-readonly'){
+    const res=await fetch(url);if(!res.ok)throw new Error('supplemental download failed');p=await res.json();
+  }else{
+    const [catalog,vectors]=await Promise.all([dataRpc('hecatalog',hv.version),dataRpc('hevectors',hv.version)]);
+    if(catalog?.moved||vectors?.moved)throw new Error('Hebrew catalog is updating');
+    p={version:hv.version,rows:hv.rows,dims:hv.dims,catalog,...vectors};
+  }
+  if(p.version!==hv.version)throw new Error('Hebrew version mismatch');
   if(!p||p.dims!==384||p.rows!==1130||!Array.isArray(p.catalog)||p.catalog.length!==p.rows||typeof p.version!=='string'||typeof p.scale_b64!=='string'||typeof p.vec_b64!=='string')throw new Error('supplemental shape invalid');
   const sb=b64ToBuf(p.scale_b64),vb=b64ToBuf(p.vec_b64);
   if(sb.byteLength!==384*4||vb.byteLength!==p.rows*384)throw new Error('supplemental vector length invalid');
@@ -1087,7 +1097,7 @@ async function loadSupplementalData(url){
   for(let i=0;i<p.rows;i++){let sum=0;const off=i*384;for(let j=0;j<384;j++){const v=i8[off+j]/127*scale[j];vecs[off+j]=v;sum+=v*v}const inv=sum>0?1/Math.sqrt(sum):0;for(let j=0;j<384;j++)vecs[off+j]*=inv}
   const d={version:p.version,catalog:p.catalog,vecs,dims:384};
   if(!validData(d,p)||p.catalog.some(b=>b.library!=='עברית (303)'))throw new Error('supplemental catalog invalid');
-  return d;
+  liveHebrewVersion=p.version;return d;
 }
 async function loadAllCatalogs(onProgress){
   onProgress&&onProgress('Loading the catalog...');
@@ -1126,7 +1136,8 @@ async function refreshCatalog(){if(window.KioskCalendarLock?.locked)return;
   try{
     if(!memCache)return;
     const v=await dataRpc('version');
-    if(v.version===memCache.version){window.KioskConnection?.live();return;}
+    const hv=CFG.hebrewCatalogUrl?await dataRpc('heversion'):null;
+    if(v.version===memCache.version&&(!CFG.hebrewCatalogUrl||hv?.version===liveHebrewVersion)){window.KioskConnection?.live();return;}
     const data=await loadAllCatalogs();
     BOOKS=data.catalog;VECS=data.vecs;DIMS=data.dims;
     buildIndexes();
