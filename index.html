@@ -958,7 +958,7 @@ async function searchAsync(query,topic='',location='',limit=20,library=''){if(wi
   const acc=new Map();
   for(const [tok,wgt] of terms)for(const i of (INV.get(tok)||[]))acc.set(i,(acc.get(i)||0)+wgt);
   const denom=Math.max(qt.size,1);const LEXW=qt.size>=4?0.08:0.22;
-  const ranked=[];
+  const exactAuthorQuery=BOOKS.some(book=>norm(book.author||'').trim()===norm(originalQuery).trim());const ranked=[];
   for(let i=0;i<BOOKS.length;i++){
     const b=BOOKS[i];
     if(!kioskVisible(b))continue;
@@ -976,9 +976,17 @@ async function searchAsync(query,topic='',location='',limit=20,library=''){if(wi
     // A recognized subject is not a misspelled Hebrew name (סמים must not become מים).
     const subjectQuery=/[א-ת]/.test(query)&&!!conceptExpansion(query);
     const identity=subjectQuery?(hasPhrase(title,nq)||hasPhrase(author,nq)?1:0):identityEvidence(query,i);
+    // Conservative full-title typo evidence, separate from topic meaning.
+    const rawWords=norm(originalQuery).trim().split(/\s+/),titleWords=title.trim().split(/\s+/);
+    let titleTypo=0;
+    if(!subjectQuery&&!exactAuthorQuery&&rawWords.length===titleWords.length&&norm(originalQuery).trim().length>=5){
+      let edits=0,changed=0,anchored=rawWords.some((w,j)=>w===titleWords[j]&&w.length>=2),safe=true;
+      for(let j=0;j<rawWords.length;j++){const a=rawWords[j],b=titleWords[j];if(a===b)continue;changed++;if(Math.min(a.length,b.length)<(anchored?3:4)){safe=false;break}edits+=osa(a,b,1);if(edits>1){safe=false;break}}
+      if(safe&&changed===1&&edits===1)titleTypo=/[א-ת]/.test(originalQuery)?.72:.48;
+    }
     const identityBoost=identity?( /[א-ת]/.test(query)? .8*identity : .24*identity):0;
-    const exactTitle=title.trim()===norm(originalQuery).trim();const boost=Math.max(exactTitle?(/[א-ת]/.test(query)?1.05:0.65):(aliasHit?0.5:(phraseHit?0.35:(correctionHit?0.12:0))),identityBoost);
-    if(/[א-ת]/.test(query)&&(b.library||'').includes('303')&&!identity)continue;
+    const exactTitle=title.trim()===norm(originalQuery).trim();const boost=Math.max(titleTypo,exactTitle?(/[א-ת]/.test(query)?1.05:0.65):(aliasHit?0.5:(phraseHit?0.35:(correctionHit?0.12:0))),identityBoost);
+    if(/[א-ת]/.test(query)&&(b.library||'').includes('303')&&!identity&&!titleTypo)continue;
     // The English embedding model cannot supply reliable meaning for unannotated Hebrew-only records.
     if(!String(b.summary||'').trim()&&/[א-ת]/.test(b.title)&&!/[א-ת]/.test(query)&&!overlap&&!boost)continue;
     if(semantic[i]<0.32&&overlap<0.5&&!boost)continue;
