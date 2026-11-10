@@ -720,8 +720,30 @@ const HEBF={},HPHRF={};
 for(const k in HEB)HEBF[FOLDH(stripMarks(k))]=HEB[k];
 for(const k in HPHR)HPHRF[FOLDH(stripMarks(k))]=HPHR[k];
 const ENX={trusting:'trust bitachon emunah faith',trust:'trust bitachon faith emunah',avel:'mourning aveilus aveil',aveil:'mourning aveilus avel',avelus:'mourning aveilus',inclination:'yetzer hara inclination',shabes:'shabbos shabbat',shabbes:'shabbos shabbat',tzedoko:'tzedakah charity',tsedoko:'tzedakah charity',tsitsit:'tzitzis',tsitsis:'tzitzis',tzitzes:'tzitzis',agada:'aggadah haggadah',agadah:'aggadah haggadah',aggada:'aggadah haggadah',habdala:'havdalah',habdalah:'havdalah',havdolo:'havdalah',havdala:'havdalah',cabala:'kabbalah',kabala:'kabbalah',kaballah:'kabbalah',kabbala:'kabbalah',qabalah:'kabbalah',sfira:'sefirah omer',sfirah:'sefirah omer',sefira:'sefirah omer',birkot:'birkat brachos blessing',birkat:'birkat brachos blessing',birchos:'brachos blessing',birkos:'brachos blessing',kavono:'kavanah concentration focus',kavana:'kavanah concentration focus',kavannah:'kavanah concentration focus',concentration:'kavanah focus concentration',neshama:'neshamah soul',neshomah:'neshamah soul',neshamah:'neshama soul',ruchnius:'spirituality spiritual ruchniyus',ruchniyus:'spirituality spiritual ruchnius',shiva:'mourning aveilus shivah',shivah:'mourning aveilus shiva',rut:'ruth rus megillah',ruth:'ruth rus megillah',kidush:'kiddush',kasher:'kosher kashrus',kashering:'kosher kashrus',kashered:'kosher kashrus',berakha:'brachos blessing',berakhah:'brachos blessing',berachah:'brachos blessing',tsedaka:'tzedakah charity',tsedakah:'tzedakah charity',tzedaka:'tzedakah charity',tznius:'modesty tzniut',tzniut:'modesty tznius',tzanua:'modesty tznius',bracha:'brachos blessing',brocha:'brachos blessing',brochos:'brachos blessing',beracha:'brachos blessing',berachos:'brachos blessing',berakhos:'brachos blessing',twersky:'twerski',depressed:'depression sadness',cook:'cooking bishul food preparation',cooking:'bishul food preparation',warm:'reheating food cooking bishul',reheat:'reheating food cooking bishul',reheating:'food cooking bishul',saturday:'shabbos shabbat',praying:'prayer tefillah',anxious:'anxiety worry bitachon',daven:'tefillah prayer',davening:'tefillah prayer',davened:'tefillah prayer',davenen:'tefillah prayer',enjoy:'joy happiness simcha',enjoyable:'joy simcha',fun:'joy simcha',boring:'focus concentration kavanah',bored:'focus concentration kavanah',distracted:'focus concentration kavanah',kids:'children chinuch parenting',parenting:'children chinuch',shidduch:'marriage dating',dating:'marriage shidduch',parnassah:'parnasa livelihood',teshuvah:'teshuva repentance',gemora:'gemara talmud',scared:'fear anxiety bitachon',afraid:'fear anxiety bitachon',sad:'sadness depression happiness',lonely:'loneliness sadness',grief:'mourning loss comfort',mourning:'loss comfort aveilus',anger:'anger middos character',doubt:'faith emunah',doubts:'faith emunah',purpose:'meaning purpose of life',parnasa:'parnassah livelihood income',parnassa:'parnassah livelihood income',parnosa:'parnassah livelihood income',parnosah:'parnassah livelihood income'};
+const SEARCH_CONCEPTS=[
+ {pattern:/\b(?:weed|marijuana|cannabis)\b|קנאביס|מריחואנה|מריחואנא/i,words:'cannabis marijuana'},
+ {key:'substance',pattern:/\b(?:drugs?|substance abuse|substance use)\b|סמים/i,words:'drugs substance use cannabis marijuana addiction'},
+ {pattern:/\b(?:addiction|addictions|addicted|addictive)\b|התמכרות/i,words:'addiction addictive recovery'},
+ {pattern:/\b(?:gossip|slander)\b|לשון הרע/i,words:'lashon hara gossip shemiras halashon'},
+ {pattern:/\b(?:alcohol|alcoholism|alcoholic|alcoholics)\b/i,words:'alcohol alcoholism alcoholic alcoholics recovery'},
+ {pattern:/^(?:fear|fears)$/i,words:'fear fears anxiety'},
+ {pattern:/כעס/,words:'anger middos character'}
+];
+const CONCEPT_WORDS=new Set(SEARCH_CONCEPTS.flatMap(c=>c.words.split(' ')));
+function conceptExpansion(q){return SEARCH_CONCEPTS.filter(c=>c.pattern.test(q)&&!(c.key==='substance'&&/addict|התמכרות/i.test(q))).map(c=>c.words).join(' ')}
+// Recognize common inflections only when their base has real catalog/concept evidence.
+function englishBase(word){
+ const w=word.toLowerCase();if(!/^[a-z]+$/.test(w)||COMMON.has(w)||VOCAB.has(w)||ENX[w]||CONCEPT_WORDS.has(w))return '';
+ const candidates=[];
+ if(w.length>5&&w.endsWith('ing')){const stem=w.slice(0,-3);candidates.push(stem,stem.replace(/(.)\1$/,'$1'),stem+'e')}
+ if(w.length>4&&w.endsWith('ied'))candidates.push(w.slice(0,-3)+'y');
+ if(w.length>4&&w.endsWith('ies'))candidates.push(w.slice(0,-3)+'y');
+ if(w.length>4&&w.endsWith('ed')){const stem=w.slice(0,-2);candidates.push(stem,stem.replace(/(.)\1$/,'$1'),stem+'e')}
+ return candidates.find(t=>COMMON.has(t)||VOCAB.has(t)||ENX[t]||CONCEPT_WORDS.has(t))||'';
+}
+function inflectionTerms(q){return q.toLowerCase().split(/[^a-z]+/).map(englishBase).filter(Boolean).join(' ')}
 function hebExpand(q){
-  const ex0=[];if(/\b(keep|keeping|observe|observing)\b/i.test(q)&&/\b(shabbos|shabbat|sabbath)\b/i.test(q))ex0.push('practical observance halachah laws guide');for(const w of q.toLowerCase().split(/[^a-z]+/))if(ENX[w])ex0.push(ENX[w]);
+  const ex0=[];const concept=conceptExpansion(q);if(concept)ex0.push(concept);if(/\b(keep|keeping|observe|observing)\b/i.test(q)&&/\b(shabbos|shabbat|sabbath)\b/i.test(q))ex0.push('practical observance halachah laws guide');for(const w of q.toLowerCase().split(/[^a-z]+/))if(ENX[w])ex0.push(ENX[w]);
   if(!/[\u0590-\u05FF]/.test(q))return ex0.length?q+' '+ex0.join(' '):q;
   const extra=ex0;let rest=q;
   for(const [k,v] of Object.entries(HPHR))if(rest.includes(k)){extra.push(v);rest=rest.split(k).join(' ')}
@@ -735,6 +757,7 @@ function hebExpand(q){
   }
   return extra.length?q+' '+extra.join(' '):q;
 }
+Object.assign(ENX,{worry:'worry anxiety bitachon',worried:'worry anxiety bitachon'});
 const COMMON=new Set(["about", "above", "afraid", "after", "again", "against", "all", "also", "always", "ancient", "and", "angry", "anxiety", "any", "are", "around", "away", "back", "because", "been", "before", "being", "between", "body", "book", "books", "bored", "boring", "born", "both", "bring", "business", "but", "came", "can", "change", "child", "children", "clear", "close", "come", "copy", "could", "cry", "daily", "dare", "day", "death", "depression", "did", "does", "doing", "done", "down", "during", "each", "easy", "else", "enjoy", "enough", "even", "ever", "every", "explain", "fact", "failure", "family", "far", "feel", "few", "find", "first", "focus", "for", "found", "friend", "from", "future", "gave", "get", "give", "going", "good", "great", "growth", "had", "happiness", "happy", "hard", "has", "have", "heart", "help", "her", "here", "him", "his", "history", "home", "hope", "how", "hurt", "husband", "into", "its", "joy", "just", "keep", "kind", "know", "large", "last", "laugh", "learn", "less", "let", "life", "like", "little", "live", "lives", "long", "look", "lose", "lost", "love", "made", "make", "many", "marriage", "may", "maybe", "mean", "meaning", "mind", "modern", "money", "more", "most", "much", "must", "near", "need", "never", "next", "night", "not", "now", "off", "often", "once", "only", "open", "other", "our", "out", "over", "own", "pain", "parent", "parents", "part", "past", "peace", "people", "place", "please", "power", "present", "press", "put", "read", "real", "right", "sad", "same", "say", "scared", "school", "see", "seem", "she", "should", "show", "side", "simple", "since", "small", "smile", "some", "something", "soul", "special", "spirit", "still", "stories", "story", "stress", "strong", "student", "study", "success", "such", "suffering", "sure", "take", "teach", "teaching", "tell", "than", "that", "the", "their", "them", "then", "there", "these", "they", "thing", "think", "this", "those", "through", "time", "tired", "too", "true", "truth", "try", "turn", "under", "until", "use", "very", "want", "war", "was", "way", "weak", "well", "went", "were", "what", "when", "where", "which", "while", "who", "whom", "why", "wife", "will", "with", "without", "word", "work", "world", "worried", "worry", "would", "write", "year", "you", "young", "your"]);
 for(const w of 'על איך מה של את זה בזמן ספר ספרים לי אני עם או גם כל'.split(' '))STOP.add(w);
 
@@ -796,7 +819,7 @@ function expandTerms(qt){
   const fuzzed={};
   const freq=v=>(INV.get(v)||[]).length;
   for(const t of qt){
-    const HEBT=/[\u0590-\u05FF]/.test(t),KNOWN=COMMON.has(t)||HEBT;
+    const HEBT=/[\u0590-\u05FF]/.test(t),KNOWN=COMMON.has(t)||HEBT||VOCAB.has(t)||CONCEPT_WORDS.has(t)||!!englishBase(t);
     if(t.length>=4&&!KNOWN){
       const d=t.length<8?1:2,cands=[];
       for(let L=Math.max(1,t.length-d);L<=t.length+d;L++)
@@ -908,11 +931,11 @@ function identityEvidence(query,i){
 }
 
 async function searchAsync(query,topic='',location='',limit=20,library=''){if(window.KioskCalendarLock?.locked)return {results:[],message:'Closed for Shabbos / Yom Tov'};
-  query=canonicalWorkQuery(query);query=query.replace(/\b(shabbas|shabas|shabbat|shabbath|sabbath)\b/gi,'shabbos');
+  const originalQuery=String(query).trim();query=canonicalWorkQuery(query).replace(/\b(?:loshon|lashon)\s+h[oa]r[oa]\b/gi,'lashon hara');query=query.replace(/\b(shabbas|shabas|shabbat|shabbath|sabbath)\b/gi,'shabbos');
   if(!query.trim())return {results:[],message:'Describe a subject, person or kind of book.'};
   const electricalIntent=/\b(electric(?:al|ity)?|appliances?|lamps?)\b/i.test(query)||(/\b(lights?)\b/i.test(query)&&/\b(turn|turning|switch|switching)\b/i.test(query));
   const shabbosIntent=/\b(shabbos|shabos|shabbat|sabbath)\b/i.test(query)||/שבת/.test(query);
-  const qx=hebExpand(query)+(electricalIntent&&shabbosIntent?' electricity appliances technology Shabbos laws':'');const qv=await embed1(qx);
+  const qx=hebExpand(query+' '+inflectionTerms(query))+(electricalIntent&&shabbosIntent?' electricity appliances technology Shabbos laws':'');const qv=await embed1(qx);
   let semantic=semanticScores(qv);
   const qt=tokens(qx),nq=norm(query).trim();
   const [terms,fuzzed]=expandTerms(qt);
@@ -945,11 +968,19 @@ async function searchAsync(query,topic='',location='',limit=20,library=''){if(wi
     const title=norm(b.title),author=norm(b.author||'');
     const overlap=Math.min((acc.get(i)||0)/denom,1.0);
     const aliasHit=Array.isArray(b.aliases)&&b.aliases.some(a=>norm(a).trim()===nq);
-    const phraseHit=(nq&&(title.includes(nq)||author.includes(nq)))||(nqAlt&&(title.includes(nqAlt)||author.includes(nqAlt)));
-    const identity=identityEvidence(query,i);
+    // Whole normalized words, never substrings: pot is not potential, fear is not fearless.
+    const hasPhrase=(text,phrase)=>{if(!phrase)return false;const padded=' '+text.trim()+' ';if(padded.includes(' '+phrase+' '))return true;const words=phrase.split(' '),last=words[words.length-1];if(/^[a-z]{4,}$/.test(last)&&!last.endsWith('s')){words[words.length-1]=last+'s';return padded.includes(' '+words.join(' ')+' ')}return false};
+    const phraseHit=hasPhrase(title,nq)||hasPhrase(author,nq);
+    // A guessed correction is weaker evidence than the words the reader entered.
+    const correctionHit=hasPhrase(title,nqAlt)||hasPhrase(author,nqAlt);
+    // A recognized subject is not a misspelled Hebrew name (סמים must not become מים).
+    const subjectQuery=/[א-ת]/.test(query)&&!!conceptExpansion(query);
+    const identity=subjectQuery?(hasPhrase(title,nq)||hasPhrase(author,nq)?1:0):identityEvidence(query,i);
     const identityBoost=identity?( /[א-ת]/.test(query)? .8*identity : .24*identity):0;
-    const boost=Math.max(aliasHit?0.5:(phraseHit?0.35:0),identityBoost);
+    const exactTitle=title.trim()===norm(originalQuery).trim();const boost=Math.max(exactTitle?(/[א-ת]/.test(query)?1.05:0.65):(aliasHit?0.5:(phraseHit?0.35:(correctionHit?0.12:0))),identityBoost);
     if(/[א-ת]/.test(query)&&(b.library||'').includes('303')&&!identity)continue;
+    // The English embedding model cannot supply reliable meaning for unannotated Hebrew-only records.
+    if(!String(b.summary||'').trim()&&/[א-ת]/.test(b.title)&&!/[א-ת]/.test(query)&&!overlap&&!boost)continue;
     if(semantic[i]<0.32&&overlap<0.5&&!boost)continue;
     const evidenceText=[b.title,b.summary,b.tags].join(' ');
     const electricalEvidence=/\b(electric(?:al|ity)?|appliances?|technology)\b/i.test(evidenceText);
@@ -966,7 +997,7 @@ async function searchAsync(query,topic='',location='',limit=20,library=''){if(wi
   });
   const out={results,model:'sentence-transformers/all-MiniLM-L6-v2 (quantized, in-browser)',total_matching_filter:ranked.length,message:'Suggestions are ranked matches, not guarantees of coverage.'};
   // Did-you-mean, context-rescored; never a silent substitution.
-  const missing=[...qt].filter(t=>!VOCAB.has(t)&&!kb[t]&&!COMMON.has(t)&&!ENX[t]&&!/[\u0590-\u05FF]/.test(t));
+  const missing=[...qt].filter(t=>!VOCAB.has(t)&&!kb[t]&&!COMMON.has(t)&&!ENX[t]&&!conceptExpansion(t)&&!englishBase(t)&&!/[\u0590-\u05FF]/.test(t));
   const topScore=results.length?results[0].score:0;
   if(missing.length&&topScore>=0.45){
     const base=new Set();
