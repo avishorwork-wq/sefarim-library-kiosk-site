@@ -1178,7 +1178,7 @@ for(const f of document.querySelectorAll('input,textarea'))f.addEventListener('f
 </script><script>/* Admin panel loader: runs ONLY when the URL hash is #admin. Patrons never load any admin code. */
 (function(){function go(){if(location.hash!=='#admin'||window.__adminLoaded)return;window.__adminLoaded=true;var c=window.KIOSK_CONFIG=window.KIOSK_CONFIG||{};c.dataEndpoint=c.dataEndpoint||'https://script.google.com/macros/s/AKfycbw-vwSy2xw8WTG7iXN9iopdrHoPCz3GoCFjetW6tdhANgN-wNWNmC2Q6tC0P-tkd20/exec';c.requestEndpoint=c.requestEndpoint||'https://script.google.com/macros/s/AKfycbw-vwSy2xw8WTG7iXN9iopdrHoPCz3GoCFjetW6tdhANgN-wNWNmC2Q6tC0P-tkd20/exec';
 function ld(src,cb){var s=document.createElement('script');s.src=src;s.onload=cb;document.head.appendChild(s)}
-function chain(){ld('auth_client.js',function(){ld('admin.js')})}
+function chain(){ld('auth_client.js',function(){ld('admin.js?v=he303-v7')})}
 if(window.google&&google.accounts)chain();else ld('https://accounts.google.com/gsi/client',chain)}
 addEventListener('hashchange',go);go()})()</script>
 <style>html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
