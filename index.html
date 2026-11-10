@@ -602,7 +602,9 @@ function render(){
  const mk=(label,cls,fn)=>{const b=document.createElement('button');b.type='button';b.className='key '+cls;b.textContent=label;b.addEventListener('pointerdown',ev=>{ev.preventDefault();fn()});return b};
  tail.append(mk('\u232B','wide',backspace),mk(layer==='sym'?(lang==='he'?'\u05D0\u05D1\u05D2':'abc'):'123','wide',()=>{layer=layer==='sym'?'abc':'sym';render();if(target)target.focus()}),mk(lang==='he'?'\u05E8\u05D5\u05D5\u05D7':'space','space',()=>insert(' ')),mk('\u23CE','wide',()=>{if(target&&target.id==='query')run();if(target)target.blur();kbd.classList.remove('open')}));
  rows.append(tail);}
-document.getElementById('kbd-lang').addEventListener('click',()=>{lang=lang==='en'?'he':'en';layer='abc';const q=document.getElementById('query');if(q)q.dir=lang==='he'?'rtl':'ltr';render();if(target)target.focus()});
+function setKeyboardLanguage(value){lang=value==='he'?'he':'en';layer='abc';const q=document.getElementById('query');if(q)q.dir=lang==='he'?'rtl':'ltr';render();}
+addEventListener('kiosk-language',e=>setKeyboardLanguage(e.detail));
+document.getElementById('kbd-lang').addEventListener('click',()=>{setKeyboardLanguage(lang==='en'?'he':'en');if(target)target.focus()});
 let downIn=null;
 document.addEventListener('pointerdown',e=>{
  downIn=e.target.closest&&e.target.closest('#kbd,input,textarea');
@@ -625,7 +627,7 @@ document.getElementById('kbd-native').addEventListener('click',()=>{
  kbd.classList.add('hidden-forever');kbd.classList.remove('open');
  const bar=kbd.querySelector('.kbd-bar');
  if(target){target.blur();setTimeout(()=>target&&target.focus(),50);}});
-kbd.showAgain=()=>{for(const f of fields())f.inputMode='none';target=null;lang='en';layer='abc';render();kbd.classList.remove('hidden-forever','open');};
+kbd.showAgain=()=>{for(const f of fields())f.inputMode='none';target=null;setKeyboardLanguage(window.KioskUI?.getLanguage?.()||document.documentElement.lang);kbd.classList.remove('hidden-forever','open');};
 for(const f of fields()){
  f.addEventListener('focus',()=>{target=f;if(!kbd.classList.contains('hidden-forever'))kbd.classList.add('open');if(f.id==='query')f.dir=lang==='he'?'rtl':'ltr'});
  f.addEventListener('click',()=>{target=f;if(!kbd.classList.contains('hidden-forever'))kbd.classList.add('open')});}
