@@ -444,6 +444,7 @@
       $("#efields").append(l, el);
     }
     root.querySelector("#mode-copies").textContent = "Edit / hide / restore";
+    root.querySelector("#mode-add").textContent = "Add English book";
     function mode(v) {
       const adding = v === "add";
       card.hidden = adding;
@@ -481,6 +482,7 @@
       const v = await rpc("getKioskData", "version"),
         c = await rpc("getKioskData", "catalog", v.version);
       if (!Array.isArray(c)) throw Error("Catalog changed. Search again.");
+      if ($("#edit-library").value !== "עברית (303)") { catalog = c; return; }
       const hv = await rpc("getKioskData", "heversion");
       if (!hv || typeof hv.version !== "string") throw Error("Hebrew catalog is unavailable. Nothing changed.");
       let hc;
