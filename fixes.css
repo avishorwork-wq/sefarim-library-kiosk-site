@@ -136,3 +136,7 @@ body.typing #ui-language{min-height:36px;padding:6px 10px;font-size:13px}
 }
 /* Preserve the typing region's fixed geometry without framing empty space. */
 body.typing form#search:has(#suggest:empty){background:transparent;border-color:transparent;box-shadow:none}
+
+/* Owner-requested display-only removal. Catalog/source records remain unchanged. */
+.book-body > details,
+main > footer > details { display: none !important; }
