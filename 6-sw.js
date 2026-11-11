@@ -1,6 +1,6 @@
 /* Public app shell only. Never cache API traffic, POSTs, admin or Google sign-in. */
-const SHELL='netiv-shell-20261110c-merged-shelves',MODEL='netiv-model-20261109b';
-const APP=['./index.html','./1-idle-kiosk.html','./idle-test.html','./config.js','./47-calendar-lock.js','./fixes.css','./4-pwa.js','./5-idle-main.js','./3-manifest.webmanifest','./1-icon-192.png','./2-icon-512.png','./1-he303-v2-readonly.json'];
+const SHELL='netiv-shell-20261111-nightly-review',MODEL='netiv-model-20261109b';
+const APP=['./index.html','./1-idle-kiosk.html','./idle-test.html','./config.js','./47-calendar-lock.js','./48-nightly-reload.js','./fixes.css','./4-pwa.js','./5-idle-main.js','./3-manifest.webmanifest','./1-icon-192.png','./2-icon-512.png','./1-he303-v2-readonly.json'];
 const ASSETS=['./24-model-00.bin', './25-model-01.bin', './26-model-02.bin', './27-model-03.bin', './28-model-04.bin', './29-model-05.bin', './30-wasm-00.bin', './31-wasm-01.bin', './32-wasm-02.bin', './33-wasm-03.bin', './34-wasm-04.bin', './35-wasm-05.bin', './36-transformers.min.js', './37-ort-wasm-simd-threaded.jsep.mjs', './38-config.json', './39-tokenizer.json', './40-tokenizer_config.json', './44-search-assets.json', './45-search-loader.js'];
 const root=new URL('./',self.location.href);
 const urls=APP.map(p=>new URL(p,root).href);
@@ -16,4 +16,14 @@ self.addEventListener('fetch',e=>{
  }
  const model=modelUrls.includes(u.origin+u.pathname)||(u.hostname==='cdn.jsdelivr.net'&&u.pathname.includes('/@huggingface/transformers@3.7.6'))||((u.hostname==='huggingface.co'||u.hostname.endsWith('.huggingface.co')||u.hostname==='cdn-lfs.huggingface.co')&&u.pathname.includes('all-MiniLM-L6-v2'));
  if(model){e.respondWith((async()=>{const c=await caches.open(MODEL),hit=await c.match(r);if(hit)return hit;const res=await fetch(r);if(res.ok&&res.type!=='opaque')await c.put(r,res.clone());return res})())}
+});
+
+// Explicit safe-window activation only; never activate automatically mid-session.
+self.addEventListener("message",e=>{
+ if(e.data?.type!=="KIOSK_SAFE_NIGHTLY_ACTIVATE"||!e.ports?.[0])return;
+ e.waitUntil((async()=>{
+  const clients=await self.clients.matchAll({type:"window",includeUncontrolled:true});
+  if(clients.length!==1){e.ports[0].postMessage({allowed:false});return;}
+  e.ports[0].postMessage({allowed:true});await self.skipWaiting();
+ })());
 });
