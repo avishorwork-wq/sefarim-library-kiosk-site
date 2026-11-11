@@ -5,3 +5,6 @@
  addEventListener('offline',()=>window.KioskConnection.cached());
  if('serviceWorker' in navigator&&isSecureContext){navigator.serviceWorker.register('./6-sw.js',{updateViaCache:'none'}).then(r=>{r.update().catch(()=>{});if(navigator.storage?.persist)navigator.storage.persist().catch(()=>{})}).catch(()=>{})}
 })();
+
+// Display-only owner request. Catalog and source records are not modified.
+(()=>{const s=document.createElement("style");s.id="hide-source-displays";s.textContent=".book-body > details, main > footer > details {display:none!important}";document.head.appendChild(s);})();
