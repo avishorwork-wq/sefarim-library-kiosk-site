@@ -5,7 +5,7 @@
  function accept(command,seen,now){
   if(!command||command.schema!==1||command.kind!=='force-reload'||typeof command.id!=='string'||!/^[0-9]+-[0-9]+$/.test(command.id))return false;
   const issued=Date.parse(command.issuedAt),until=Date.parse(command.expiresAt);
-  return command.id!==seen&&Number.isFinite(issued)&&Number.isFinite(until)&&issued<=now+120000&&now<until&&until-issued>0&&until-issued<=600000;
+  return command.id!==seen&&Number.isFinite(issued)&&Number.isFinite(until)&&issued<=now+120000&&now<until&&until-issued>0&&until-issued<=1800000;
  }
  if(typeof module==='object'&&module.exports){module.exports={accept};return;}
  const signal='https://raw.githubusercontent.com/avishorwork-wq/sefarim-library-kiosk-site/main/50-reload-signal.json';
@@ -26,12 +26,14 @@
    // These overrides are deliberate: no idle, draft, calendar or visibility gate.
    // Do not restore prior nightly state after a forced command.
    sessionStorage.removeItem('kiosk-nightly-reload-v1-view');
-   const reg=await navigator.serviceWorker?.getRegistration();
-   if(reg)await Promise.race([reg.update().catch(()=>{}),new Promise(r=>setTimeout(r,5000))]);
+   // Fire-and-forget: never await SW update before reloading. Awaiting it stalled
+   // reloads for minutes in background tabs (throttled timers), and the shell
+   // fetch handler is network-first so the reload picks up fresh files anyway.
+   try{navigator.serviceWorker?.getRegistration().then(reg=>reg?.update().catch(()=>{})).catch(()=>{})}catch{}
    // Reload now. Do not force-activate a worker across other active pages.
    location.reload();
   }catch{/* Offline, refused storage or invalid signal: do not loop/reload. */}finally{busy=false}
  }
- setInterval(check,30000);addEventListener('online',check);addEventListener('focus',check);document.addEventListener('visibilitychange',check);check();
- root.KioskOwnerReload={check};
+ setInterval(check,10000);addEventListener('online',check);addEventListener('focus',check);document.addEventListener('visibilitychange',check);check();
+ root.KioskOwnerReload={check,version:'2026-11-11-fast1'};
 })(typeof window==='object'?window:globalThis);
