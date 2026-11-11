@@ -11,3 +11,6 @@
 
 // Load the nightly maintenance policy, separate from catalog code.
 (()=>{const s=document.createElement("script");s.src="./48-nightly-reload.js";s.defer=true;document.head.append(s)})();
+
+// Owner-forced reload signal, authenticated trigger lives in GitHub Actions.
+(()=>{const s=document.createElement("script");s.src="./49-remote-reload.js";s.defer=true;document.head.append(s)})();
