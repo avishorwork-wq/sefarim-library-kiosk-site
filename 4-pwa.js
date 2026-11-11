@@ -7,4 +7,4 @@
 })();
 
 // Display-only owner request. Catalog and source records are not modified.
-(()=>{const s=document.createElement("style");s.id="hide-source-displays";s.textContent=".book-body > details, main > footer > details {display:none!important}";document.head.appendChild(s);})();
+(()=>{const s=document.createElement("style");s.id="hide-source-displays";s.textContent=".book-body > details, main > footer > details, main > footer > p:has(> a[href$=\"46-THIRD-PARTY-NOTICES.txt\"]) {display:none!important}";document.head.appendChild(s);})();
