@@ -8,15 +8,19 @@
   return command.id!==seen&&Number.isFinite(issued)&&Number.isFinite(until)&&issued<=now+120000&&now<until&&until-issued>0&&until-issued<=1800000;
  }
  if(typeof module==='object'&&module.exports){module.exports={accept};return;}
- const signal='https://raw.githubusercontent.com/avishorwork-wq/sefarim-library-kiosk-site/main/50-reload-signal.json';
+ // Same-origin Pages copy is fresh within about a minute of the workflow commit;
+ // raw.githubusercontent.com can serve a stale copy for about 5 minutes.
+ const signals=['./50-reload-signal.json','https://raw.githubusercontent.com/avishorwork-wq/sefarim-library-kiosk-site/main/50-reload-signal.json'];
  let busy=false;
  async function check(){
   if(busy||!navigator.onLine)return;
   busy=true;
   try{
    const abort=new AbortController(),timer=setTimeout(()=>abort.abort(),10000);
-   let response;try{response=await fetch(signal+'?check='+Date.now(),{cache:'no-store',credentials:'omit',signal:abort.signal})}finally{clearTimeout(timer)}
-   if(!response.ok)return;
+   let response;try{
+    for(const u of signals){response=await fetch(u+(u.includes('?')?'&':'?')+'check='+Date.now(),{cache:'no-store',credentials:'omit',signal:abort.signal});if(response.ok)break}
+   }finally{clearTimeout(timer)}
+   if(!response||!response.ok)return;
    const cmd=await response.json();
    // Trust the server Date when provided, not a badly set tablet clock.
    const server=Date.parse(response.headers.get('date')),now=Number.isFinite(server)?server:Date.now();
@@ -35,5 +39,5 @@
   }catch{/* Offline, refused storage or invalid signal: do not loop/reload. */}finally{busy=false}
  }
  setInterval(check,10000);addEventListener('online',check);addEventListener('focus',check);document.addEventListener('visibilitychange',check);check();
- root.KioskOwnerReload={check,version:'2026-11-11-fast1'};
+ root.KioskOwnerReload={check,version:'2026-11-11-fast2'};
 })(typeof window==='object'?window:globalThis);
