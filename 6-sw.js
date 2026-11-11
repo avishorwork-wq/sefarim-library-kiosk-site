@@ -12,7 +12,7 @@ self.addEventListener('fetch',e=>{
  const r=e.request,u=new URL(r.url);if(r.method!=='GET'||u.searchParams.has('clock'))return;
  const key=u.origin+(u.origin===root.origin&&u.pathname===root.pathname?root.pathname+'index.html':u.pathname);
  if(u.origin===root.origin&&urls.includes(key)){
-  e.respondWith((async()=>{const c=await caches.open(SHELL);try{const res=await fetch(r);if(res.ok)await c.put(key,res.clone());return res}catch(err){const hit=await c.match(key);if(hit)return hit;throw err}})());return;
+  e.respondWith((async()=>{const c=await caches.open(SHELL);try{const res=await fetch(r,{cache:"no-store"});if(res.ok)await c.put(key,res.clone());return res}catch(err){const hit=await c.match(key);if(hit)return hit;throw err}})());return;
  }
  const model=modelUrls.includes(u.origin+u.pathname)||(u.hostname==='cdn.jsdelivr.net'&&u.pathname.includes('/@huggingface/transformers@3.7.6'))||((u.hostname==='huggingface.co'||u.hostname.endsWith('.huggingface.co')||u.hostname==='cdn-lfs.huggingface.co')&&u.pathname.includes('all-MiniLM-L6-v2'));
  if(model){e.respondWith((async()=>{const c=await caches.open(MODEL),hit=await c.match(r);if(hit)return hit;const res=await fetch(r);if(res.ok&&res.type!=='opaque')await c.put(r,res.clone());return res})())}
