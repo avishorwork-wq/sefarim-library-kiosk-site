@@ -22,7 +22,7 @@ jobs:
               kind: 'force-reload',
               id: `${context.runId}-${process.env.GITHUB_RUN_ATTEMPT}`,
               issuedAt: issued.toISOString(),
-              expiresAt: new Date(issued.getTime() + 10 * 60 * 1000).toISOString()
+              expiresAt: new Date(issued.getTime() + 30 * 60 * 1000).toISOString()
             };
             const current = await github.rest.repos.getContent({
               owner: context.repo.owner, repo: context.repo.repo, path, ref: 'main'
@@ -35,5 +35,5 @@ jobs:
               ...(current ? {sha: current.data.sha} : {})
             });
             core.summary.addHeading('Reload command published').addRaw(
-              'Online kiosks running the new code check about every 30 seconds. GitHub queue, caching, sleeping or offline devices can delay or prevent delivery. This run is not a kiosk acknowledgement.'
+              'Online kiosks running the new code check about every 10 seconds. GitHub queue, caching, sleeping or offline devices can delay or prevent delivery. This run is not a kiosk acknowledgement.'
             ).write();
