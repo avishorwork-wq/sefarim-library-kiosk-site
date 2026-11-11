@@ -20,7 +20,7 @@ jobs:
             const command = {
               schema: 1,
               kind: 'force-reload',
-              id: `${context.runId}-${context.runAttempt}`,
+              id: `${context.runId}-${process.env.GITHUB_RUN_ATTEMPT}`,
               issuedAt: issued.toISOString(),
               expiresAt: new Date(issued.getTime() + 10 * 60 * 1000).toISOString()
             };
