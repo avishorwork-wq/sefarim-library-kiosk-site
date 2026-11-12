@@ -15,13 +15,13 @@
 // Owner-forced reload signal, authenticated trigger lives in GitHub Actions.
 (()=>{const s=document.createElement("script");s.src="./49-remote-reload.js";s.defer=true;document.head.append(s)})();
 
-// Display-only totals for merged records on the same shelf. Never alter catalog data.
+// Display-only totals for merged records, same or different shelves. Never alter catalog data.
 (()=>{
  function total(text){
   const parts=text.replace(/ \(separate records\)$/,'').split('; ');
   if(parts.length<2)return null;
   const entries=parts.map(p=>p.match(/^(.+): (\d+)$/));
-  if(entries.some(e=>!e)||!entries.every(e=>e[1].trim()===entries[0][1].trim())||entries[0][1]==='Shelf not recorded')return null;
+  if(entries.some(e=>!e)||entries.some(e=>e[1].trim()==='Shelf not recorded'))return null;
   const n=entries.reduce((sum,e)=>sum+Number(e[2]),0);
   return Number.isSafeInteger(n)?n:null;
  }
