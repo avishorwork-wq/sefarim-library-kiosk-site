@@ -14,3 +14,27 @@
 
 // Owner-forced reload signal, authenticated trigger lives in GitHub Actions.
 (()=>{const s=document.createElement("script");s.src="./49-remote-reload.js";s.defer=true;document.head.append(s)})();
+
+// Display-only totals for merged records on the same shelf. Never alter catalog data.
+(()=>{
+ function total(text){
+  const parts=text.replace(/ \(separate records\)$/,'').split('; ');
+  if(parts.length<2)return null;
+  const entries=parts.map(p=>p.match(/^(.+): (\d+)$/));
+  if(entries.some(e=>!e)||!entries.every(e=>e[1].trim()===entries[0][1].trim())||entries[0][1]==='Shelf not recorded')return null;
+  const n=entries.reduce((sum,e)=>sum+Number(e[2]),0);
+  return Number.isSafeInteger(n)?n:null;
+ }
+ function update(){
+  for(const dt of document.querySelectorAll('article dl dt')){
+   if(!['Copies by shelf','עותקים לפי מדף'].includes(dt.textContent.trim()))continue;
+   const dd=dt.nextElementSibling;if(dd?.tagName!=='DD')continue;
+   const n=total(dd.textContent.trim());if(n===null)continue;
+   dt.textContent='Listed quantity';dd.textContent=String(n);
+  }
+ }
+ let pending=false;
+ new MutationObserver(()=>{if(!pending){pending=true;queueMicrotask(()=>{pending=false;update()})}}).observe(document.body,{subtree:true,childList:true,characterData:true});
+ update();
+ window.KioskQuantityDisplay={total};
+})();
