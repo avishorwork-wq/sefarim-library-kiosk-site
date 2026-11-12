@@ -870,7 +870,7 @@ let VOCAB=new Set();
 const KIOSK_EXCLUDED_ROWS=new Set([418,420,422,428,429]);
 // Owner-approved kiosk visibility only; backend fields stay unchanged.
 function restoredHaChinuch(b){const r=Number(b.row);return b.library==='ENGLISH (301)'&&r>=350&&r<=355&&String(b.title).trim()==='volume '+(r-345)&&String(b.location).trim()==='47'&&b.author==='Original author anonymous (Sefer HaChinuch)'&&b.topic==='Mitzvot'&&b.subtopic==='Sefer HaChinuch'}
-function kioskVisible(b){return !!volumeIdentity(b)||restoredHaChinuch(b)||(b.hidden!==true&&!(b.hidden!==false&&(b.library||'ENGLISH (301)')==='ENGLISH (301)'&&KIOSK_EXCLUDED_ROWS.has(Number(b.row))))}
+function kioskVisible(b){const x=volumeIdentity(b);if(x&&[274,358,359,360,361].includes(Number(b.row)))return false;return !!x||restoredHaChinuch(b)||(b.hidden!==true&&!(b.hidden!==false&&(b.library||'ENGLISH (301)')==='ENGLISH (301)'&&KIOSK_EXCLUDED_ROWS.has(Number(b.row))))}
 function buildIndexes(){
   INV.clear();VLEN.clear();SKEL.clear();SLEN.clear();
   DOC_WORDS=BOOKS.map(b=>!kioskVisible(b)?new Set():tokens(['title','author','summary','tags'].map(k=>String(identityText(b,k)??'')).join('. ')+'. '+(Array.isArray(b.aliases)?b.aliases.join('. '):'')));
