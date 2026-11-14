@@ -1667,6 +1667,7 @@ logo.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDe
  const value=document.createElement('span');value.className='kiosk-select-value';value.dir='auto';
  const arrow=document.createElementNS('http://www.w3.org/2000/svg','svg');arrow.setAttribute('viewBox','0 0 20 20');arrow.setAttribute('aria-hidden','true');arrow.classList.add('kiosk-select-chevron');arrow.innerHTML='<path d="m5 7 5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>';
  button.append(value,arrow);
+ select.classList.add('kiosk-select-source');select.setAttribute('aria-hidden','true');select.tabIndex=-1;
  select.after(wrap);wrap.append(button);
  const popup=document.createElement('div');popup.id='kiosk-sticker-options';popup.className='kiosk-select-popup';popup.role='listbox';popup.setAttribute('aria-multiselectable','true');popup.hidden=true;popup.setAttribute('popover','manual');popup.addEventListener('mousedown',e=>e.preventDefault());
  button.setAttribute('aria-controls',popup.id);
