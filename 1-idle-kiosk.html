@@ -833,8 +833,9 @@ function heWordEvidence(a,b,anchored=false){
 }
 const EN_SOUND_FAMILIES=[['bracha','beracha','berachah','berakha','berakhah','brocha','brachos','berachos','berakhos','brochos','brachot','berachot','berakhot'],['shabbos','shabos','shabbes','shabes','shabbat','shabbath','shabas','shabbas'],['yisrael','yisroel','yisroyl','israel'],['yosef','yoseph','yoseif'],['chaim','chayim','hayim','haim'],['yitzchak','yitzhak','yitzchok','yitzhok','itzhak'],['tefillah','tefila','tefilah','tefilloh','tefilot','tefillot','tefillos'],['twerski','twersky'],['berura','berurah','beruroh'],['halacha','halachah','halakha','halakhah','halachos','halachot','halakhot']];
 const EN_SOUND=new Map();EN_SOUND_FAMILIES.forEach((f,i)=>f.forEach(w=>EN_SOUND.set(w,i)));
-let IDENTITY_WORDS=[],IDENTITY_COMPACT=[];
+let IDENTITY_WORDS=[],IDENTITY_COMPACT=[],TRANSLITERATED_IDENTITY=[];
 function buildIdentityIndex(){
+ TRANSLITERATED_IDENTITY=BOOKS.map(b=>window.KioskTransliteration?.build(identityText(b,'title'),identityText(b,'author'))||[]);
  IDENTITY_WORDS=BOOKS.map(b=>[...new Set(heIdentityNorm([b.title,b.author,...(b.aliases||[])].join(' ')).split(' ').filter(Boolean))]);
  IDENTITY_COMPACT=BOOKS.map(b=>[b.title,b.author,...(b.aliases||[])].map(x=>heIdentityNorm(x).replace(/ /g,'')));
 }
@@ -854,7 +855,9 @@ function identityEvidence(query,i){
   }
   return sum/words.length;
  }
- // Only an explicit transliteration family can add English phonetic evidence.
+ // Automatic cross-script evidence, followed by existing Latin spelling families.
+ const crossScript=(window.KioskTransliteration?.evidence(query,TRANSLITERATED_IDENTITY[i]||[])||0);
+ if(crossScript)return crossScript;
  if(!words.some(w=>EN_SOUND.has(w)))return 0;
  let sum=0,changed=false;for(const w of words){if(doc.includes(w)){sum++;continue}const family=EN_SOUND.get(w);if(family===undefined||!doc.some(t=>EN_SOUND.get(t)===family))return 0;sum+=.84;changed=true}
  return changed?sum/words.length:0;
@@ -900,7 +903,8 @@ async function searchAsync(query,topic='',location='',limit=20,library=''){if(wi
     const aliasHit=Array.isArray(b.aliases)&&b.aliases.some(a=>norm(a).trim()===nq);
     const phraseHit=(nq&&(title.includes(nq)||author.includes(nq)))||(nqAlt&&(title.includes(nqAlt)||author.includes(nqAlt)));
     const identity=identityEvidence(query,i);
-    const identityBoost=identity?( /[א-ת]/.test(query)? .8*identity : .24*identity):0;
+    const crossScriptIdentity=!/[א-ת]/.test(query)&&(window.KioskTransliteration?.evidence(query,TRANSLITERATED_IDENTITY[i]||[])||0);
+    const identityBoost=identity?( /[א-ת]/.test(query)||crossScriptIdentity? .8*identity : .24*identity):0;
     const boost=Math.max(aliasHit?0.5:(phraseHit?0.35:0),identityBoost);
     if(/[א-ת]/.test(query)&&(b.library||'').includes('303')&&!identity)continue;
     if(semantic[i]<0.32&&overlap<0.5&&!boost)continue;
@@ -968,6 +972,9 @@ function autocomplete(q,limit=8){
     else if(tn.includes(qn)){contains.push(t);seen.add(tn)}
   }
   for(const b of BOOKS.filter(b=>kioskVisible(b)&&(!selectedLibrary||(b.library||'ENGLISH (301)')===selectedLibrary))){if(Array.isArray(b.aliases)&&b.aliases.some(a=>norm(a).trim().startsWith(qn))){const t=String(b.title||'').trim(),tn=norm(t).trim();if(t&&!seen.has(tn)){starts.push(t);seen.add(tn)}}}
+  // English-letter sound matches suggest the unchanged Hebrew catalog title.
+  BOOKS.forEach((b,i)=>{if(!kioskVisible(b)||(selectedLibrary&&(b.library||'ENGLISH (301)')!==selectedLibrary))return;
+    if(window.KioskTransliteration?.evidence(q,TRANSLITERATED_IDENTITY[i]||[])){const t=String(identityText(b,'title')||'').trim(),tn=norm(t).trim();if(t&&!seen.has(tn)){starts.push(t);seen.add(tn)}}});
   starts.sort((a,b)=>a.length-b.length);contains.sort((a,b)=>a.length-b.length);
   for(const t of [...starts,...contains]){if(out.length>=limit)break;out.push(t)}
   if(out.length<limit){
