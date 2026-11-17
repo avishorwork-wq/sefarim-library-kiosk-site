@@ -834,8 +834,27 @@ function heWordEvidence(a,b,anchored=false){
 const EN_SOUND_FAMILIES=[['bracha','beracha','berachah','berakha','berakhah','brocha','brachos','berachos','berakhos','brochos','brachot','berachot','berakhot'],['shabbos','shabos','shabbes','shabes','shabbat','shabbath','shabas','shabbas'],['yisrael','yisroel','yisroyl','israel'],['yosef','yoseph','yoseif'],['chaim','chayim','hayim','haim'],['yitzchak','yitzhak','yitzchok','yitzhok','itzhak'],['tefillah','tefila','tefilah','tefilloh','tefilot','tefillot','tefillos'],['twerski','twersky'],['berura','berurah','beruroh'],['halacha','halachah','halakha','halakhah','halachos','halachot','halakhot']];
 const EN_SOUND=new Map();EN_SOUND_FAMILIES.forEach((f,i)=>f.forEach(w=>EN_SOUND.set(w,i)));
 let IDENTITY_WORDS=[],IDENTITY_COMPACT=[],TRANSLITERATED_IDENTITY=[];
+function reportUnconfidentEntries(){
+ try{
+  if(!window.KioskTransliteration||typeof REQUEST_ENDPOINT==='undefined'||!REQUEST_ENDPOINT)return;
+  const flagged=[];
+  for(const b of BOOKS){
+   const t=String(identityText(b,'title')||''),a=String(identityText(b,'author')||'');
+   if(!/[\u05D0-\u05EA]/.test(t+' '+a))continue;
+   const u=window.KioskTransliteration.unconfident(t,a);
+   if(u)flagged.push({row:b.row,library:b.library||'',title:t.slice(0,140),reason:u.reason,words:u.words});
+  }
+  if(!flagged.length)return;
+  const ver=BOOKS.length+':'+flagged.length+':'+flagged.reduce((s,f)=>s+(+f.row||0),0);
+  const KEY='kiosk-unconfident-reported';
+  if(localStorage.getItem(KEY)===ver)return;
+  const body=new URLSearchParams({name:'KIOSK-SYSTEM',request:'search-match-alert',details:JSON.stringify({kind:'unconfident-transliteration',catalog_rows:BOOKS.length,flagged:flagged.length,entries:flagged.slice(0,150)}),contact:'avishorwork@mail.instinct.com',website:''});
+  fetch(REQUEST_ENDPOINT,{method:'POST',mode:'no-cors',body}).then(()=>{try{localStorage.setItem(KEY,ver)}catch{}}).catch(()=>{});
+ }catch{}
+}
 function buildIdentityIndex(){
  TRANSLITERATED_IDENTITY=BOOKS.map(b=>window.KioskTransliteration?.build(identityText(b,'title'),identityText(b,'author'))||[]);
+ reportUnconfidentEntries();
  IDENTITY_WORDS=BOOKS.map(b=>[...new Set(heIdentityNorm([b.title,b.author,...(b.aliases||[])].join(' ')).split(' ').filter(Boolean))]);
  IDENTITY_COMPACT=BOOKS.map(b=>[b.title,b.author,...(b.aliases||[])].map(x=>heIdentityNorm(x).replace(/ /g,'')));
 }
