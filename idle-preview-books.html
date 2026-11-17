@@ -78,7 +78,7 @@ let off=0;
 const now=()=>new Date(Date.now()+off);
 const render=()=>{const t=now();clock.textContent=fmt.format(t);dEn.textContent=dfe.format(t);dHe.textContent=dfh.format(t)};
 const arm=()=>{setTimeout(()=>{render();arm()},60000-((Date.now()+off)%60000)+150)};
-const sync=async()=>{try{const t0=Date.now();const r=await fetch('https://worldtimeapi.org/api/timezone/Asia/Jerusalem',{cache:'no-store'});const t1=Date.now();const j=await r.json();const srv=Date.parse(j.datetime);if(!isNaN(srv)){off=srv+(t1-t0)/2-t1;if(off>900000||off<-900000)off=0;return}}catch(e){}try{const t0=Date.now();const r=await fetch('./50-reload-signal.json',{cache:'no-store'});const hd=r.headers.get('Date');if(hd){const srv=Date.parse(hd);if(!isNaN(srv)){const t1=Date.now();off=srv+(t1-t0)/2-t1;if(off>900000||off<-900000)off=0}}}catch(e){}};
+const sync=async()=>{try{const t0=Date.now();const r=await fetch('https://timeapi.io/api/Time/current/zone?timeZone=Asia/Jerusalem',{cache:'no-store'});const t1=Date.now();const j=await r.json();const srv=Date.parse(j.dateTime+(j.dstActive?'+03:00':'+02:00'));if(!isNaN(srv)){off=srv+(t1-t0)/2-t1;if(off>900000||off<-900000)off=0;return}}catch(e){}try{const t0=Date.now();const r=await fetch('./50-reload-signal.json',{cache:'no-store'});const hd=r.headers.get('Date');if(hd){const srv=Date.parse(hd);if(!isNaN(srv)){const t1=Date.now();off=srv+(t1-t0)/2-t1;if(off>900000||off<-900000)off=0}}}catch(e){}};
 render();arm();sync().then(render);setInterval(()=>sync().then(render),600000);addEventListener('online',()=>sync().then(render));document.addEventListener('visibilitychange',()=>{if(!document.hidden)sync().then(render)});
 </script>
 </body></html>
