@@ -22,8 +22,7 @@ const sync=async()=>{try{const t0=Date.now();const r=await fetch('https://timeap
 render();arm();sync().then(render);
 {const scr0=root.querySelector('#idle-screen');
 const blobs=[].slice.call(root.querySelectorAll('.mesh-blob'));
-const prm=matchMedia('(prefers-reduced-motion:reduce)');
-if(scr0&&blobs.length&&!prm.matches){
+if(scr0&&blobs.length){
 const st=blobs.map(b=>{const a=Math.random()*Math.PI*2,sp=40+Math.random()*30;
 return {b:b,x:0,y:0,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp*.7,r:null}});
 const recalc=()=>{if(scr0.hidden)return;const W=innerWidth,H=innerHeight;for(const s of st){
