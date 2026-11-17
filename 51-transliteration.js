@@ -40,7 +40,7 @@ function hebrewKeys(word){
 const LATIN_PREFIXES=['sha','she','ha','he','ve','va','ba','be','bi','la','le','li','ka','ke','ki','ma','me','mi'];
 function latinKeys(word){
  // ch/kh/h, tz/ts/z, v/b/w, f/ph, th/t, doubled consonants and vowel spellings share keys.
- const base=word.replace(/(?:tch|sch|sh)/g,'s').replace(/(?:ch|kh)/g,'k').replace(/(?:tz|ts)/g,'C').replace(/ph/g,'p').replace(/th/g,'t').replace(/[cq]/g,'k').replace(/x/g,'ks').replace(/[vf]/g,c=>c==='v'?'b':'p').replace(/[aeiouy]/g,'').replace(/C/g,'c');
+ const base=word.replace(/tsh/g,'Ts').replace(/(?:tch|sch|sh)/g,'s').replace(/(?:ch|kh)/g,'k').replace(/(?:tz|ts)/g,'C').replace(/ph/g,'p').replace(/th/g,'t').replace(/[cq]/g,'k').replace(/x/g,'ks').replace(/[vf]/g,c=>c==='v'?'b':'p').replace(/[aeiouy]/g,'').replace(/C/g,'c').replace(/T/g,'t');
  const out=new Set(keyForms(compact(base)));
  // h stands for ח in spellings like hasid/hassid; w and z drift too.
  if(base.includes('h'))for(const k of keyForms(compact(base.replace(/h/g,'k'))))out.add(k);
@@ -50,26 +50,30 @@ function latinKeys(word){
  for(const p of LATIN_PREFIXES)if(word.startsWith(p)&&base.length-p.length+1>=3){const stripped=compact(base.slice(1));if(stripped.length>=2)out.add(stripped);break}
  out.delete('');return out;
 }
-function baseSkeleton(w){return compact([...w].map(c=>LETTERS[c]||'').join('').replace(/w/g,''))}
+function baseSkeleton(w){return compact([...w].map(c=>LETTERS[c]||'').join('').replace(/w/g,'').replace(/h$/,''))}
 function build(title,author){
  const raw=String(title||'')+' '+String(author||'');
  return words(raw).filter(w=>/[א-ת]/.test(w)).map(w=>({word:w,keys:hebrewKeys(w),base:baseSkeleton(w)}));
 }
+const FUNCTION_WORDS=new Set(['the','of','by','ha','he','im','am','em','um','al','el','mi','le','li','lo','be','ba','bi','ve','va','shel','et','min']);
 const LATIN_CACHE=new Map();
 function cachedLatinKeys(w){let k=LATIN_CACHE.get(w);if(!k){k=latinKeys(w);LATIN_CACHE.set(w,k)}return k}
 function evidence(query,doc){
  if(!/^[a-z\s'"’`-]+$/i.test(query))return 0;
- const ws=words(query).filter(w=>!['the','of','by','ha','he'].includes(w));if(!ws.length||ws.length>9||!doc.length)return 0;
+ const ws=words(query).filter(w=>!FUNCTION_WORDS.has(w));if(!ws.length||ws.length>9||!doc.length)return 0;
  const choices=ws.map(w=>{
   const keys=cachedLatinKeys(w);const minLength=2;
-  return doc.map((target,j)=>[j,[...keys].some(k=>k.length>=minLength&&target.keys.has(k))]).filter(x=>x[1]).map(x=>x[0]);
+  return doc.map((target,j)=>[j,[...keys].some(k=>(k.length>=minLength&&target.keys.has(k))||(ws.length>1&&k.length===1&&(target.base===k||[...target.keys].every(x=>x.length<2))))]).filter(x=>x[1]).map(x=>x[0]);
  });
  if(choices.some(c=>!c.length)){
   // Fused short-word names (בן איש חי ~ ben ish chai): compare joined skeletons.
-  const qcat=compact(ws.map(w=>[...cachedLatinKeys(w)][0]||'').join(''));
-  const dcats=new Set();for(const t of doc)if(t.base)dcats.add(t.base);
+  const qraw=compact(ws.map(w=>[...cachedLatinKeys(w)][0]||'').join('').replace(/w/g,'b'));
   const dcat=compact(doc.map(t=>t.base||'').join(''));
-  if(qcat.length>=4&&(dcat===qcat||dcat.includes(qcat)))return .9;
+  const qcats=new Set([qraw,qraw.replace(/z/g,'c'),qraw.replace(/h/g,'k'),qraw.replace(/z/g,'c').replace(/h/g,'k')]);
+  for(const qcat of qcats){
+   if(qcat.length>=3&&dcat===qcat)return .9;
+   if(qcat.length>=4&&dcat.includes(qcat))return .9;
+  }
   return 0;
  }
  // Match each query word to a different title/author word.
@@ -79,14 +83,17 @@ function evidence(query,doc){
 // Cheap runtime confidence check: can every significant Hebrew word of this
 // entry be reached from some Latin spelling, and can the entry be found at all?
 // Entries that fail are reported so an override can be added by Instinct.
+const HEB_FUNCTION=new Set(['עם','על','אל','מי','לב','ל','ב','ו','ה','של','את','מן','כל']);
 function unconfident(title,author){
  const doc=build(title,author).filter(t=>t.word.length>=2);
  if(!doc.length)return null; // no Hebrew words: nothing to check
- const weak=doc.filter(t=>![...t.keys].some(k=>k.length>=2)).map(t=>t.word);
+ const canon=w=>w.replace(/[\u05DA\u05DD\u05DF\u05E3\u05E5]/g,c=>({'\u05DA':'\u05DB','\u05DD':'\u05DE','\u05DF':'\u05E0','\u05E3':'\u05E4','\u05E5':'\u05E6'}[c]));
+ const weak=doc.filter(t=>![...t.keys].some(k=>k.length>=2)&&![...HEB_FUNCTION].some(f=>canon(f)===canon(t.word))).map(t=>t.word);
  if(weak.length)return {reason:'word_without_latin_key',words:weak};
  const strong=doc.filter(t=>[...t.keys].some(k=>k.length>=3));
+ const usable=doc.filter(t=>[...t.keys].some(k=>k.length>=2));
  if(doc.length===1&&!strong.length)return {reason:'single_short_word_only',words:[doc[0].word]};
- if(!strong.length&&doc.length<2)return {reason:'no_strong_key',words:doc.map(t=>t.word)};
+ if(!strong.length&&usable.length<2)return {reason:'no_strong_key',words:doc.map(t=>t.word)};
  return null;
 }
 root.KioskTransliteration={build,evidence,unconfident,latinKeys,hebrewKeys,version:'v2-auto'};

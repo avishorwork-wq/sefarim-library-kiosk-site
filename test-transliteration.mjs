@@ -30,23 +30,6 @@ const FAMOUS = [
 ];
 
 
-const LKC = new Map();
-// Fast matcher equivalent to T.evidence but with precomputed query keys.
-function fastEvidence(q, doc) {
-  const ws = String(q).toLowerCase().replace(/["'\u05F4\u05F3\u2019`]/g,'').match(/[a-z]+/g||[]).filter(w=>!['the','of','by','ha','he'].includes(w));
-  if (!ws.length || ws.length > 9 || !doc.length) return 0;
-  const qkeys = ws.map(w => T.latinKeys(w));
-  const choices = qkeys.map(keys => doc.map((target,j)=>[j,[...keys].some(k=>k.length>=2&&target.keys.has(k))]).filter(x=>x[1]).map(x=>x[0]));
-  if (choices.some(c=>!c.length)) {
-    const qcat = ws.map(w => [...T.latinKeys(w)][0] || '').join('').replace(/(.)\1+/g, '$1');
-    const dcat = doc.map(x => x.base || '').join('').replace(/(.)\1+/g, '$1');
-    if (qcat.length >= 4 && (dcat === qcat || dcat.includes(qcat))) return 0.9;
-    return 0;
-  }
-  choices.sort((a,b)=>a.length-b.length);const used=new Set();
-  function assign(i){if(i===choices.length)return true;for(const j of choices[i])if(!used.has(j)){used.add(j);if(assign(i+1))return true;used.delete(j)}return false}
-  return assign(0)?0.92:0;
-}
 const stripG = s => String(s||'').replace(/["'\u05F4\u05F3]/g,'');
 const visible = he.filter(e=>!e.hidden);
 const visibleText = visible.map(e=>stripG((e.title||'')+' '+(e.author||'')));
@@ -62,7 +45,7 @@ for (const [q, expected] of FAMOUS) {
   const hits = [];
   for (let i = 0; i < he.length; i++) {
     if (he[i].hidden) continue;
-    if (fastEvidence(q, docs[i])) hits.push(he[i]);
+    if (T.evidence(q, docs[i])) hits.push(he[i]);
   }
   const ok = expected === null ? true : hits.some(h => stripG(docText(h)).includes(stripG(expected)));
   if (ok && (expected === null || hits.length)) pass++;
@@ -74,10 +57,10 @@ for (const f of fail) console.log('  FAIL', JSON.stringify(f));
 // --- 2. Auto-generated spelling variants for every visible Hebrew entry ---
 // Independent conventional transliterator with common variants (vowels included).
 const V = {
-  'א': ['a', 'e', ''], 'ב': ['b', 'v'], 'ג': ['g'], 'ד': ['d'], 'ה': ['h', ''],
+  'א': ['a', 'e', 'i', 'o', ''], 'ב': ['b', 'v'], 'ג': ['g'], 'ד': ['d'], 'ה': ['h', ''],
   'ו': ['o', 'u', 'v', ''], 'ז': ['z'], 'ח': ['ch', 'kh', 'h'], 'ט': ['t'],
   'י': ['i', 'y', 'e', ''], 'כ': ['k', 'ch', 'kh'], 'ל': ['l'], 'מ': ['m'],
-  'נ': ['n'], 'ס': ['s'], 'ע': ['a', 'e', ''], 'פ': ['p', 'f'], 'צ': ['tz', 'ts', 'z'],
+  'נ': ['n'], 'ס': ['s'], 'ע': ['a', 'e', 'i', ''], 'פ': ['p', 'f'], 'צ': ['tz', 'ts', 'z'],
   'ק': ['k', 'q'], 'ר': ['r'], 'ש': ['sh', 's'], 'ת': ['t', 'th', 's'],
   'ך': ['ch', 'kh'], 'ם': ['m'], 'ן': ['n'], 'ף': ['f'], 'ץ': ['tz', 'ts'],
 };
@@ -115,12 +98,12 @@ for (let i = 0; i < he.length; i++) {
   entriesTested++;
   // Build a query from up to 3 title words, each in a random English spelling.
   const chosen = twords.slice(0, 3);
+  const varLists = chosen.map(w => [...variants(w, 6)]);
   let entryHits = false;
   for (let attempt = 0; attempt < 6 && !entryHits; attempt++) {
-    const qparts = [];
-    for (const w of chosen) { const v = variants(w, 1).next().value; qparts.push(v); }
+    const qparts = varLists.map(vs => vs[Math.min(attempt, vs.length - 1)]);
     const q = qparts.join(' ');
-    if (fastEvidence(q, docs[i])) entryHits = true;
+    if (T.evidence(q, docs[i])) entryHits = true;
   }
   // Per-word coverage via direct key intersection (fast, equivalent to a 2-word query match).
   for (const w of twords) {
@@ -164,7 +147,7 @@ const NEW = [
 let nPass = 0; const nFail = [];
 for (const [title, q] of NEW) {
   const d = T.build(title, '');
-  if (fastEvidence(q, d)) nPass++;
+  if (T.evidence(q, d)) nPass++;
   else nFail.push({ title, q });
 }
 console.log(`INVENTED: ${nPass}/${NEW.length} pass`);
