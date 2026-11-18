@@ -1,4 +1,4 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>html{overscroll-behavior-y:none}</style><title>Find your next sefer</title><style>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><style>html{overscroll-behavior-y:none}</style><title>Find your next sefer</title><style>
 :root {
   --ink: #16202b;
   --ink-soft: rgba(22, 32, 43, 0.74);
@@ -1450,5 +1450,24 @@ logo.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDe
   summary.addEventListener('click',e=>{e.preventDefault();expanded=!expanded;animation?.cancel();if(matchMedia('(prefers-reduced-motion:reduce)').matches){d.open=expanded;body.style.opacity='';return}const startHeight=d.getBoundingClientRect().height;d.style.height=startHeight+'px';d.style.overflow='hidden';if(expanded)d.open=true;const endHeight=expanded?summary.getBoundingClientRect().height+body.scrollHeight:summary.getBoundingClientRect().height;animation=d.animate({height:[startHeight+'px',endHeight+'px']},{duration:280,easing:'cubic-bezier(.2,.7,.2,1)'});body.animate({opacity:expanded?[0,1]:[1,0],transform:expanded?['translateY(-6px)','translateY(0)']:['translateY(0)','translateY(-4px)']},{duration:220,easing:'ease-out'});animation.onfinish=()=>{d.open=expanded;d.style.height='';d.style.overflow='';animation=null}})
  }
 })();
-</script></body></html>
+</script><script>(()=>{
+ /* Display-only: keep long sticker numbers inside their box (shrink, then wrap). Catalog data untouched. */
+ function fitOne(el){
+  el.style.fontSize='';el.style.whiteSpace='nowrap';el.style.overflowWrap='';
+  if(!el.clientWidth)return;
+  let size=parseFloat(getComputedStyle(el).fontSize)||44;
+  const floor=Math.max(14,Math.round(size*.42));
+  let guard=24;
+  while(el.scrollWidth>el.clientWidth+1&&size>floor&&guard-->0){size-=2;el.style.fontSize=size+'px'}
+  if(el.scrollWidth>el.clientWidth+1){el.style.whiteSpace='normal';el.style.overflowWrap='anywhere'}
+ }
+ function fitAll(){for(const el of document.querySelectorAll('.sticker-num,.browse-sticker strong'))fitOne(el)}
+ let queued=false;
+ function queue(){if(queued)return;queued=true;requestAnimationFrame(()=>{queued=false;fitAll()})}
+ new MutationObserver(queue).observe(document.body,{subtree:true,childList:true,characterData:true});
+ addEventListener('resize',queue);
+ queue();
+})();
+</script>
+</body></html>
 
