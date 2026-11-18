@@ -981,6 +981,7 @@ const EN_SOUND_FAMILIES=[['bracha','beracha','berachah','berakha','berakhah','br
 const EN_SOUND=new Map();EN_SOUND_FAMILIES.forEach((f,i)=>f.forEach(w=>EN_SOUND.set(w,i)));
 let IDENTITY_WORDS=[],IDENTITY_COMPACT=[],TRANSLITERATED_IDENTITY=[];
 function reportUnconfidentEntries(){
+ return; // Disabled 2026-11-18 per Avi: alert flooded the book-request sheet; no longer writes to the sheet.
  try{
   if(!window.KioskTransliteration||typeof REQUEST_ENDPOINT==='undefined'||!REQUEST_ENDPOINT)return;
   const flagged=[];
@@ -1780,3 +1781,4 @@ select.kiosk-select-source{display:none!important}
 html[dir=rtl] .browse-title>strong,html[dir=rtl] article .book-heading h2,html[dir=rtl] #book-detail .book-heading h2{direction:rtl;text-align:right}
 .browse-title>strong bdi,article .book-heading h2 bdi{font:inherit;color:inherit;unicode-bidi:isolate}
 </style></body></html>
+
