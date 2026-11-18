@@ -514,7 +514,7 @@ article h2[dir],article .author[dir],article .description[dir]{unicode-bidi:isol
 select{appearance:none;-webkit-appearance:none;min-height:48px!important;padding-inline-end:44px!important;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20'%3E%3Cpath d='m5 7 5 5 5-5' fill='none' stroke='%231a5579' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")!important;background-repeat:no-repeat!important;background-position:right 14px center!important;background-size:20px!important}
 [dir=rtl] select{background-position:left 14px center!important}
 @media(prefers-reduced-motion:reduce){.filter-panel>summary::after{transition:none}}
-</style></head><script>/* Backend endpoints. Defaults inside index.html point at the existing sheet-backed service. Override here to change the backend without editing index.html. */
+input,textarea{-webkit-user-select:none;user-select:none}</style></head><script>/* Backend endpoints. Defaults inside index.html point at the existing sheet-backed service. Override here to change the backend without editing index.html. */
 window.KIOSK_CONFIG={
   dataEndpoint: 'https://script.google.com/macros/s/AKfycbysgzWStmxSyhZgejGV6JobiUc6g3v_98RUviisAczv8yf1MbDA3hRWNrXlCcyfeCNz/exec',
   adminEndpoint: 'https://script.google.com/macros/s/AKfycbysgzWStmxSyhZgejGV6JobiUc6g3v_98RUviisAczv8yf1MbDA3hRWNrXlCcyfeCNz/exec',
@@ -1465,6 +1465,11 @@ logo.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDe
  addEventListener('resize',queue);
  queue();
 })();
+</script>
+<script>
+/* Kiosk lockdown: suppress Android long-press text-selection toolbar (Cut/Copy/Select all/Manage apps) in form fields. Caret and custom keyboard keep working. */
+document.addEventListener('contextmenu',e=>{const t=e.target;if(t&&t.closest&&t.closest('input,textarea'))e.preventDefault()},true);
+document.addEventListener('selectionchange',()=>{const a=document.activeElement;if(a&&(a.tagName==='INPUT'||a.tagName==='TEXTAREA')&&a.selectionStart!=null&&a.selectionStart!==a.selectionEnd){try{a.setSelectionRange(a.selectionEnd,a.selectionEnd)}catch(_){}}});
 </script>
 </body></html>
 
