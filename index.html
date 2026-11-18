@@ -1321,9 +1321,12 @@ async function loadAllCatalogs(onProgress){
   return data;
 }
 async function calendarOpen(){while(window.KioskCalendarLock?.locked)await new Promise(r=>setTimeout(r,1000))}
+/* Display-only sticker override (Avi, 2026-11-18): Rav Chaim Kanievsky on Chumash full set. Guarded by exact original fields; backend catalog unchanged. */
+const LOCATION_OVERRIDES={"451":{title:"Rav Chaim kanievsky on Chumash full set with 5 Megillos ",topic:"Chumash",from:"62",to:63}};
+function applyLocationOverrides(list){for(const b of list||[]){const o=LOCATION_OVERRIDES[b.row];if(o&&(b.library||'ENGLISH (301)')==='ENGLISH (301)'&&b.title===o.title&&b.topic===o.topic&&String(b.location).trim()===o.from)b.location=o.to}return list}
 async function boot(onProgress){await calendarOpen();
   const data=await loadAllCatalogs(onProgress);
-  BOOKS=data.catalog;VECS=data.vecs;DIMS=data.dims;
+  BOOKS=applyLocationOverrides(data.catalog);VECS=data.vecs;DIMS=data.dims;
   buildIndexes();
   populateFilters();updateBrowse();
   onProgress&&onProgress('Loading search (first visit downloads about 45 MB, then cached)...');
@@ -1344,7 +1347,7 @@ async function refreshCatalog(){if(window.KioskCalendarLock?.locked)return;
     const hv=CFG.hebrewCatalogUrl?await dataRpc('heversion'):null;
     if(v.version===memCache.version&&(!CFG.hebrewCatalogUrl||hv?.version===liveHebrewVersion)){window.KioskConnection?.live();return;}
     const data=await loadAllCatalogs();
-    BOOKS=data.catalog;VECS=data.vecs;DIMS=data.dims;
+    BOOKS=applyLocationOverrides(data.catalog);VECS=data.vecs;DIMS=data.dims;
     buildIndexes();
     if(typeof populateFilters==='function')populateFilters();if(typeof updateBrowse==='function')updateBrowse(true);
     const cc=document.querySelector('#catalog-count');
