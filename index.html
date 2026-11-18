@@ -1600,7 +1600,7 @@ function admin(){stop();held=true;location.hash='admin'}
 logo.tabIndex=0;logo.draggable=false;logo.setAttribute('role','button');logo.setAttribute('aria-label','Home. Hold for library admin. Alt+Enter opens admin.');logo.setAttribute('aria-keyshortcuts','Alt+Enter');
 for(const [key,value] of [['touch-action','none'],['-webkit-touch-callout','none'],['-webkit-user-select','none'],['user-select','none'],['-webkit-user-drag','none']])logo.style.setProperty(key,value,'important');
 logo.addEventListener('pointerdown',e=>{if(e.button!==0||e.isPrimary===false)return;e.preventDefault();stop();held=false;moved=false;origin=[e.clientX,e.clientY];logo.setPointerCapture?.(e.pointerId);timer=setTimeout(admin,1800)},{passive:false});
-logo.addEventListener('pointermove',e=>{if(origin&&Math.hypot(e.clientX-origin[0],e.clientY-origin[1])>12){moved=true;stop()}});
+logo.addEventListener('pointermove',e=>{if(origin&&Math.hypot(e.clientX-origin[0],e.clientY-origin[1])>48){moved=true;stop()}});
 logo.addEventListener('pointerup',e=>{stop();const tap=origin&&!held&&!moved;origin=null;if(tap)home()});for(const name of ['pointercancel','lostpointercapture'])logo.addEventListener(name,()=>{stop();origin=null});
 logo.addEventListener('click',e=>{e.preventDefault();if(e.detail===0)home()});for(const name of ['contextmenu','selectstart','dragstart'])logo.addEventListener(name,e=>e.preventDefault());
 function bindAdminLogo(){const image=document.querySelector('#kadmin .logo-badge');if(!image||image.dataset.homeBound)return;image.dataset.homeBound='true';image.tabIndex=0;image.setAttribute('role','button');image.setAttribute('aria-label','Close admin, sign out and return home');image.addEventListener('click',home);image.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();home()}})}new MutationObserver(bindAdminLogo).observe(document.body,{childList:true});bindAdminLogo();
@@ -1810,4 +1810,5 @@ document.addEventListener('contextmenu',e=>{const t=e.target;if(t&&t.closest&&t.
 document.addEventListener('selectionchange',()=>{const a=document.activeElement;if(a&&(a.tagName==='INPUT'||a.tagName==='TEXTAREA')&&a.selectionStart!=null&&a.selectionStart!==a.selectionEnd){try{a.setSelectionRange(a.selectionEnd,a.selectionEnd)}catch(_){}}});
 </script>
 </body></html>
+
 
