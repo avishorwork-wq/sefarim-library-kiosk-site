@@ -1410,7 +1410,7 @@ const open=()=>{cancel();location.hash='admin'};
 logo.tabIndex=0;logo.draggable=false;logo.setAttribute('role','button');logo.setAttribute('aria-label','Library account');
 for(const [key,value] of [['touch-action','none'],['-webkit-touch-callout','none'],['-webkit-user-select','none'],['user-select','none'],['-webkit-user-drag','none']])logo.style.setProperty(key,value,'important');
 const begin=(x,y)=>{cancel();origin=[x,y];timer=setTimeout(open,1800)};
-const move=(x,y)=>{if(origin&&Math.hypot(x-origin[0],y-origin[1])>12)cancel()};
+const move=(x,y)=>{if(origin&&Math.hypot(x-origin[0],y-origin[1])>48)cancel()};
 logo.addEventListener('pointerdown',e=>{if(e.button!==0||e.isPrimary===false)return;e.preventDefault();logo.setPointerCapture?.(e.pointerId);begin(e.clientX,e.clientY)},{passive:false});
 logo.addEventListener('pointermove',e=>move(e.clientX,e.clientY));
 for(const event of ['pointerup','pointercancel','lostpointercapture'])logo.addEventListener(event,cancel);
@@ -1477,4 +1477,5 @@ document.addEventListener('contextmenu',e=>{const t=e.target;if(t&&t.closest&&t.
 document.addEventListener('selectionchange',()=>{const a=document.activeElement;if(a&&(a.tagName==='INPUT'||a.tagName==='TEXTAREA')&&a.selectionStart!=null&&a.selectionStart!==a.selectionEnd){try{a.setSelectionRange(a.selectionEnd,a.selectionEnd)}catch(_){}}});
 </script>
 </body></html>
+
 
