@@ -1266,7 +1266,7 @@ body{background:#edf4f8;color:#173247}
 .masthead .intro{max-width:600px;font-size:16px;line-height:1.5}
 .library-picker{display:grid;grid-template-columns:auto minmax(180px,330px);justify-content:start;align-items:center;gap:12px;margin:0 0 12px}
 select,.library-picker select{appearance:none;-webkit-appearance:none;background:#f6fbff;border:1px solid #bad0df;border-radius:12px;padding:11px 38px 11px 14px;color:#173247;font:inherit;font-size:16px;line-height:1.25;min-height:46px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24'%3E%3Cpath fill='none' stroke='%23395f78' stroke-width='2' d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;box-shadow:0 2px 3px #17324705;transition:border-color .2s,background-color .2s,box-shadow .2s}
-select:focus-visible{outline:3px solid #78c9f377;outline-offset:2px;border-color:#348cb9}
+select:focus-visible{outline:none;outline-offset:2px;border-color:#348cb9}
 html[dir=rtl] select{padding:11px 14px 11px 38px;background-position:left 14px center}
 .query-row{flex-wrap:nowrap;align-items:stretch;gap:12px}
 .query-row input{min-width:0;width:100%;border-radius:14px;font-size:19px;line-height:1.4;padding:14px 18px;background:#fff;box-shadow:none}
@@ -1423,7 +1423,7 @@ logo.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDe
  *{-webkit-tap-highlight-color:transparent}
  button,a,summary,[role=button]{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
  button:focus:not(:focus-visible),a:focus:not(:focus-visible),summary:focus:not(:focus-visible),[role=button]:focus:not(:focus-visible){outline:none}
- button:focus-visible,a:focus-visible,summary:focus-visible,[role=button]:focus-visible{outline:3px solid #338ab4;outline-offset:3px;border-radius:12px}
+ button:focus-visible,a:focus-visible,summary:focus-visible,[role=button]:focus-visible{outline:none;outline-offset:3px;border-radius:12px}
  button:active,summary:active{filter:brightness(.96)}
  #book-detail::backdrop{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;animation:none!important;background:#07182e80!important}
  .detail-close{display:inline-flex;align-items:center;justify-content:center;min-width:112px!important;min-height:48px!important;border-radius:14px!important;transform:none!important;transition:background-color .12s,opacity .12s;box-shadow:none}
