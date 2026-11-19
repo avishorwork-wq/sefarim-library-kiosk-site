@@ -1138,7 +1138,7 @@ async function searchAsync(query,topic='',location='',limit=20,library=''){if(wi
   // Did-you-mean, context-rescored; never a silent substitution.
   const missing=[...qt].filter(t=>!VOCAB.has(t)&&!kb[t]&&!COMMON.has(t)&&!ENX[t]&&!conceptExpansion(t)&&!englishBase(t)&&!/[\u0590-\u05FF]/.test(t));
   const topScore=results.length?results[0].score:0;
-  if(missing.length&&topScore>=0.45){
+  if(missing.length&&topScore>=0.45&&!ovrTitles.length){
     const base=new Set();
     for(const t2 of qt)if(VOCAB.has(t2))for(const i of (INV.get(t2)||[]))base.add(i);
     const choices={},alts={};
