@@ -821,6 +821,7 @@ const SEARCH_OVERRIDES=[
  {pattern:/\b(?:porn|porno|pornos|pornography|pornographic|xxx|nsfw|onlyfans|nude|nudes|naked|erotic|sex|sexy|sexual|sexuality|masturbat(?:e|es|ing|ion)|orgasm|orgasms|orgy|prostitut(?:e|es|ion)|hooker|hookers|stripper|strippers|fetish|kink|kinky|bdsm|blowjob|handjob|boobs|tits|dick|cock|pussy|penis|vagina|cum|horny|rape|raping|molest|molestation|incest|fuck|fucking|fucker|fucked|fck|fuk|shit|shitty|bullshit|bitch|bitches|asshole|arsehole|bastard|dickhead|cunt|whore|slut|sluts|piss|pissed|crap|wtf|stfu|motherfucker|hoe|hoes|twat|wanker|jackass|dumbass|ass\b|gambl(?:e|es|ing|er|ers)|casino|casinos|poker|blackjack|roulette|slots?|lottery|lotto|betting|jackpot|wager|bingo)\b|סקס|פורנו|פורנוגרפיה|פורנוגרפי|זנות|זונה|מאונן|לאונן|אוננות|חרא|בולשיט|שיט|הימורים|הימור|מהמר|מהמרים|קזינו|פוקר|לוטו|טוטו/i,
   titles:[ADDICTIVE_THINKING]},
 ];
+function overrideExclusive(q){const h=SEARCH_OVERRIDES.filter(o=>o.pattern.test(q));return h.length>0&&h.every(o=>o.titles.length===1)}
 function overrideTitlesFor(q){
  const hits=SEARCH_OVERRIDES.filter(o=>o.pattern.test(q));
  if(!hits.length)return [];
@@ -1087,7 +1088,7 @@ async function searchAsync(query,topic='',location='',limit=20,library=''){if(wi
   // feelings), where the model's middle band is the intended result set.
   const anyStrongOverlap=[...acc.values()].some(v=>v/denom>=0.5);
   const semFloor=anyStrongOverlap?0.42:0.32;
-  const exactAuthorQuery=BOOKS.some(book=>norm(book.author||'').trim()===norm(originalQuery).trim());const ovrTitles=overrideTitlesFor(query);const ranked=[];
+  const exactAuthorQuery=BOOKS.some(book=>norm(book.author||'').trim()===norm(originalQuery).trim());const ovrTitles=overrideTitlesFor(query);const ovrOnly=ovrTitles.length>0&&overrideExclusive(query);const ranked=[];
   for(let i=0;i<BOOKS.length;i++){
     const b=BOOKS[i];
     if(!kioskVisible(b))continue;
@@ -1096,6 +1097,7 @@ async function searchAsync(query,topic='',location='',limit=20,library=''){if(wi
     if(stickerSet.size&&!stickerNumbers(b.location).some(n=>stickerSet.has(n)))continue;
     const title=norm(identityText(b,'title')),author=norm(identityText(b,'author')||'');
     const oi=ovrTitles.length?ovrTitles.indexOf(title.trim()):-1;
+    if(ovrOnly&&oi<0)continue; // bad-word searches show only Addictive Thinking
     const overlap=Math.min((acc.get(i)||0)/denom,1.0);
     const aliasHit=Array.isArray(b.aliases)&&b.aliases.some(a=>norm(a).trim()===nq);
     // Whole normalized words, never substrings: pot is not potential, fear is not fearless.
