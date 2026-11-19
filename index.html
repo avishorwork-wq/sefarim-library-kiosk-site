@@ -810,14 +810,16 @@ function conceptExpansion(q){return SEARCH_CONCEPTS.filter(c=>c.pattern.test(q)&
 /* Curated search-only overrides (2026-11-19, at Avi's request): slang or
    inappropriate searches must lead with the library's guidance books.
    Ranking only: matches live catalog titles at runtime, touches no catalog
-   data (no quantity, sticker, name or topic changes). */
+   data (no quantity, sticker, name or topic changes).
+   Guards: 'high' excludes high holidays/priest; 'stoned' excludes stoning;
+   no 'bet' (bet knesset), 'wine' (kiddush) or 'mushrooms' (cooking). */
+const ADDICTIVE_THINKING='addictive thinking: understanding self-deception: abraham j. twerski';
+const MARIJUANA_HALACHA='marijuana in halacha';
 const SEARCH_OVERRIDES=[
- {pattern:/\b(?:weed|weeds|marijuana|marihuana|cannabis|hashish|ganja|edibles?|thc|stoned|dope)\b|^pot$|^smoking pot$|קנאביס|מריחואנה|מריחואנא|חשיש/i,
-  titles:['addictive thinking: understanding self-deception: abraham j. twerski','marijuana in halacha']},
- {pattern:/\b(?:drugs?|drug abuse|substance abuse|substance use|cocaine|heroin|opioids?|opiates?|mdma|ecstasy|lsd)\b|סמים|התמכרות/i,
-  titles:['addictive thinking: understanding self-deception: abraham j. twerski','marijuana in halacha']},
- {pattern:/\b(?:porn|porno|pornography|pornographic|sex addiction|sexual addiction)\b|פורנו|פורנוגרפיה|פורנוגרפי/i,
-  titles:['addictive thinking: understanding self-deception: abraham j. twerski']},
+ {pattern:/\b(?:we{2,}ds?|w33d|marijuana|marihuana|marijauna|marijuanna|marijana|mary\s*jane|maryjane|cannabis|canabis|cannibis|hash|hashish|hasheesh|ganja|ganga|kush|skunk|reefer|spliff|doobie|thc|cbd|indica|sativa|edibles?|joint|joints|blunt|blunts|bong|dabs|stoned|dope|herb(?:al)?\s+smoke|get(?:ting)?\s+high|so\s+high|high\s+af|vape|vaping|drugs?|drug\s+abuse|substance\s+(?:abuse|use)|narcotics?|cocaine|cocain|coke|crack|heroin|heroine|opium|opioids?|opiates?|morphine|fentanyl|meth|methamphetamine|amphetamines?|speed|benzos?|xanax|valium|adderall|ritalin|barbiturates?|inhalants?|ketamine|mdma|ecstasy|extasy|xtc|lsd|acid|shrooms|psychedelics?|ghb|pills?|snorting|sniffing|overdose|dealer|drug\s+dealing|alcohol|alcoholism|alcoholic|alcoholics|drunk|drunkenness|drunkard|booze|beer|vodka|whiskey|whisky|tequila|smoking|smoker|cigarettes?|nicotine|tobacco|addict|addicts|addicted|addiction|addictions|addictive|rehab|detox)\b|^pot$|^smoking pot$|קנאביס|קנביס|מריחואנה|מריחואנא|מריכואנה|חשיש|גראס|גרס|ג'וינט|גוינט|סמים|סאמים|התמכרות|מכור|מכורים|אלכוהול|שיכור|שתייה|קוקאין|הרואין|אקסטזי|אופיום|סיגריות|עישון|טבק/i,
+  titles:[ADDICTIVE_THINKING,MARIJUANA_HALACHA]},
+ {pattern:/\b(?:porn|porno|pornos|pornography|pornographic|xxx|nsfw|onlyfans|nude|nudes|naked|erotic|sex|sexy|sexual|sexuality|masturbat(?:e|es|ing|ion)|orgasm|orgasms|orgy|prostitut(?:e|es|ion)|hooker|hookers|stripper|strippers|fetish|kink|kinky|bdsm|blowjob|handjob|boobs|tits|dick|cock|pussy|penis|vagina|cum|horny|rape|raping|molest|molestation|incest|fuck|fucking|fucker|fucked|fck|fuk|shit|shitty|bullshit|bitch|bitches|asshole|arsehole|bastard|dickhead|cunt|whore|slut|sluts|piss|pissed|crap|wtf|stfu|motherfucker|hoe|hoes|twat|wanker|jackass|dumbass|ass\b|gambl(?:e|es|ing|er|ers)|casino|casinos|poker|blackjack|roulette|slots?|lottery|lotto|betting|jackpot|wager|bingo)\b|סקס|פורנו|פורנוגרפיה|פורנוגרפי|זנות|זונה|מאונן|לאונן|אוננות|חרא|בולשיט|שיט|הימורים|הימור|מהמר|מהמרים|קזינו|פוקר|לוטו|טוטו/i,
+  titles:[ADDICTIVE_THINKING]},
 ];
 function overrideTitlesFor(q){
  const hits=SEARCH_OVERRIDES.filter(o=>o.pattern.test(q));
