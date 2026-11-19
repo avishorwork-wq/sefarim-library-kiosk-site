@@ -807,6 +807,25 @@ const SEARCH_CONCEPTS=[
 ];
 const CONCEPT_WORDS=new Set(SEARCH_CONCEPTS.flatMap(c=>c.words.split(' ')));
 function conceptExpansion(q){return SEARCH_CONCEPTS.filter(c=>c.pattern.test(q)&&!(c.key==='substance'&&/addict|התמכרות/i.test(q))).map(c=>c.words).join(' ')}
+/* Curated search-only overrides (2026-11-19, at Avi's request): slang or
+   inappropriate searches must lead with the library's guidance books.
+   Ranking only: matches live catalog titles at runtime, touches no catalog
+   data (no quantity, sticker, name or topic changes). */
+const SEARCH_OVERRIDES=[
+ {pattern:/\b(?:weed|weeds|marijuana|marihuana|cannabis|hashish|ganja|edibles?|thc|stoned|dope)\b|^pot$|^smoking pot$|קנאביס|מריחואנה|מריחואנא|חשיש/i,
+  titles:['addictive thinking: understanding self-deception: abraham j. twerski','marijuana in halacha']},
+ {pattern:/\b(?:drugs?|drug abuse|substance abuse|substance use|cocaine|heroin|opioids?|opiates?|mdma|ecstasy|lsd)\b|סמים|התמכרות/i,
+  titles:['addictive thinking: understanding self-deception: abraham j. twerski','marijuana in halacha']},
+ {pattern:/\b(?:porn|porno|pornography|pornographic|sex addiction|sexual addiction)\b|פורנו|פורנוגרפיה|פורנוגרפי/i,
+  titles:['addictive thinking: understanding self-deception: abraham j. twerski']},
+];
+function overrideTitlesFor(q){
+ const hits=SEARCH_OVERRIDES.filter(o=>o.pattern.test(q));
+ if(!hits.length)return [];
+ const seen=new Set(),out=[];
+ for(const o of hits)for(const t of o.titles){const n=norm(t).trim();if(!seen.has(n)){seen.add(n);out.push(n)}}
+ return out;
+}
 // Recognize common inflections only when their base has real catalog/concept evidence.
 function englishBase(word){
  const w=word.toLowerCase();if(!/^[a-z]+$/.test(w)||COMMON.has(w)||VOCAB.has(w)||ENX[w]||CONCEPT_WORDS.has(w))return '';
@@ -1066,7 +1085,7 @@ async function searchAsync(query,topic='',location='',limit=20,library=''){if(wi
   // feelings), where the model's middle band is the intended result set.
   const anyStrongOverlap=[...acc.values()].some(v=>v/denom>=0.5);
   const semFloor=anyStrongOverlap?0.42:0.32;
-  const exactAuthorQuery=BOOKS.some(book=>norm(book.author||'').trim()===norm(originalQuery).trim());const ranked=[];
+  const exactAuthorQuery=BOOKS.some(book=>norm(book.author||'').trim()===norm(originalQuery).trim());const ovrTitles=overrideTitlesFor(query);const ranked=[];
   for(let i=0;i<BOOKS.length;i++){
     const b=BOOKS[i];
     if(!kioskVisible(b))continue;
@@ -1074,6 +1093,7 @@ async function searchAsync(query,topic='',location='',limit=20,library=''){if(wi
     if(topic&&String(b.topic).trim()!==topic)continue;
     if(stickerSet.size&&!stickerNumbers(b.location).some(n=>stickerSet.has(n)))continue;
     const title=norm(identityText(b,'title')),author=norm(identityText(b,'author')||'');
+    const oi=ovrTitles.length?ovrTitles.indexOf(title.trim()):-1;
     const overlap=Math.min((acc.get(i)||0)/denom,1.0);
     const aliasHit=Array.isArray(b.aliases)&&b.aliases.some(a=>norm(a).trim()===nq);
     // Whole normalized words, never substrings: pot is not potential, fear is not fearless.
@@ -1098,11 +1118,11 @@ async function searchAsync(query,topic='',location='',limit=20,library=''){if(wi
     if(/[א-ת]/.test(query)&&(b.library||'').includes('303')&&!identity&&!titleTypo)continue;
     // The English embedding model cannot supply reliable meaning for unannotated Hebrew-only records.
     if(!String(b.summary||'').trim()&&/[א-ת]/.test(b.title)&&!/[א-ת]/.test(query)&&!overlap&&!boost)continue;
-    if(semantic[i]<((acc.get(i)||0)>0?0.32:semFloor)&&overlap<0.5&&!boost)continue;
+    if(oi<0&&semantic[i]<((acc.get(i)||0)>0?0.32:semFloor)&&overlap<0.5&&!boost)continue;
     const evidenceText=[b.title,b.summary,b.tags].join(' ');
     const electricalEvidence=/\b(electric(?:al|ity)?|appliances?|technology)\b/i.test(evidenceText);
     const contextAdjustment=electricalIntent&&shabbosIntent?(electricalEvidence?0.14:(/\b(chanukah|menorah|candle)\b/i.test(evidenceText)?-0.09:0)):0;
-    const hasD=String(b.summary||'').trim()?1:0;const score=contextAdjustment+(1-LEXW)*semantic[i]*(hasD?1:(LEXW<0.2?0.62:NODESC_W))+LEXW*overlap*(hasD?1:0.6)+boost;
+    const hasD=String(b.summary||'').trim()?1:0;const score=(oi>=0?10-oi:0)+contextAdjustment+(1-LEXW)*semantic[i]*(hasD?1:(LEXW<0.2?0.62:NODESC_W))+LEXW*overlap*(hasD?1:0.6)+boost;
     const matched=[...DOC_WORDS[i]].filter(t=>terms.has(t)).sort();
     ranked.push([score,i,semantic[i],overlap,matched]);
   }
